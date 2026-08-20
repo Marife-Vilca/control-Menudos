@@ -1,0 +1,76 @@
+.stock-dashboard-bar {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.stock-dashboard-bar h3 {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stock-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.stock-card-item {
+  background-color: var(--bg-card-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.stock-card-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #334155;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stock-card-title .badge-total {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.badge-total-vaca { background: #dbeafe; color: #1e40af; }
+.badge-total-toro { background: #f3e8ff; color: #6b21a8; }
+
+.stock-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+}
+
+.stock-fila {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  padding: 4px 0;
+  border-bottom: 1px dashed #cbd5e1;
+}
+
+.stock-fila .nombre-producto {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.stock-fila .cantidad-producto {
+  font-weight: 800;
+  color: #0f172a;
+}

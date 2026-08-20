@@ -1,0 +1,205 @@
+.tickets-container-wrapper {
+  background-color: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tickets-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tickets-header h2 {
+  font-size: 1rem;
+  color: var(--accent-red);
+}
+
+.tickets-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.legend {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dot-ok { background-color: var(--accent-green); }
+.dot-danger { background-color: var(--accent-red); }
+
+.tickets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.estado-vacio-tickets {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #94a3b8;
+  padding: 40px 0;
+}
+
+.estado-vacio-tickets i { font-size: 2.5rem; margin-bottom: 8px; }
+
+.kfc-ticket {
+  background-color: var(--ticket-bg);
+  color: #1e293b;
+  border: 1px solid var(--ticket-border);
+  border-top: 6px solid var(--accent-red);
+  border-radius: 4px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.kfc-ticket.ticket-despachado {
+  opacity: 0.65;
+  filter: grayscale(30%);
+  border: 2px dashed var(--accent-green);
+}
+
+.ticket-top {
+  padding: 10px 12px 6px 12px;
+  border-bottom: 1px dashed #cbd5e1;
+}
+
+.ticket-number {
+  font-size: 1.1rem;
+  font-weight: 900;
+  display: flex;
+  justify-content: space-between;
+  color: #0f172a;
+}
+
+.ticket-time { font-size: 0.75rem; color: #64748b; }
+
+.ticket-customer {
+  font-size: 0.95rem;
+  font-weight: bold;
+  margin-top: 4px;
+  text-transform: uppercase;
+  background-color: #fef3c7;
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.ticket-body { padding: 10px 12px; }
+
+.ticket-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 0.88rem;
+}
+
+.item-qty {
+  font-weight: 800;
+  background: #334155;
+  color: #fff;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 0.8rem;
+}
+
+.type-tag {
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.type-vaca { background: #dbeafe; color: #1e40af; }
+.type-toro { background: #f3e8ff; color: #6b21a8; }
+
+.status-badge {
+  font-size: 0.68rem;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status-ok { background-color: #d1fae5; color: #065f46; }
+.status-bad { background-color: #fee2e2; color: #991b1b; }
+.status-entregado { background-color: #d1fae5; color: #065f46; }
+
+.estado-label { font-size: 0.72rem; font-weight: bold; }
+.estado-completable { color: #065f46; }
+.estado-falta { color: #991b1b; }
+.estado-despachado { color: #059669; }
+
+.ticket-footer {
+  padding: 8px 12px;
+  background-color: #fef3c7;
+  border-top: 1px dashed #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.ticket-footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+}
+
+.ticket-footer-botones {
+  display: flex;
+  gap: 4px;
+}
+
+.ticket-footer-botones button {
+  width: auto;
+  padding: 4px 8px;
+}
+
+.ticket-footer-secundario {
+  display: flex;
+  gap: 6px;
+}
+
+.ticket-footer-secundario button {
+  width: auto;
+  flex: 1;
+}
+
+.btn-complete-ticket {
+  background-color: var(--accent-red);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  width: auto;
+}
+
+.btn-complete-ticket:hover { background-color: #dc2626; }
+
+.btn-reabrir { background-color: #64748b; color: #fff; }
+.btn-editar-ticket { background-color: #0284c7; color: #fff; }

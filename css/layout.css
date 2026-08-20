@@ -1,0 +1,19 @@
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 20px;
+  padding: 20px;
+  flex: 1;
+}
+
+.sidebar-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kds-main-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

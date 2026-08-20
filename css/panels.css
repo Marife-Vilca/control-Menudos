@@ -1,0 +1,199 @@
+.panel-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+  color: #334155;
+}
+
+.panel-header h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+input, select {
+  width: 100%;
+  padding: 9px 10px;
+  background-color: #ffffff;
+  border: 1px solid var(--border-dark);
+  border-radius: 6px;
+  color: var(--text-main);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus, select:focus {
+  border-color: #78350f;
+  box-shadow: 0 0 0 3px rgba(120, 53, 15, 0.15);
+}
+
+.help-text {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  display: block;
+}
+
+/* TAGS DE PRODUCTOS */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.tag-item {
+  background-color: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+/* FILAS DINÁMICAS (Lote / Pedido) */
+.lote-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.lote-row .campo-voz:nth-child(1) { flex: 0 0 190px; }
+.lote-row .campo-voz:nth-child(2) { flex: 1 1 220px; }
+.lote-row .btn-remove-row { flex: 0 0 38px; }
+
+.pedido-item-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.pedido-item-row .ped-prod { flex: 2 1 160px; }
+.pedido-item-row .ped-tipo { flex: 1 1 90px; }
+.pedido-item-row .campo-voz { flex: 0 0 170px; }
+.pedido-item-row .btn-remove-row { flex: 0 0 38px; }
+
+.btn-remove-row {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: var(--accent-red);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+}
+
+.btn-remove-row:hover {
+  background: var(--accent-red);
+  color: #fff;
+}
+
+/* TABLAS DE HISTORIAL (lotes / calidad) */
+.historial-seccion { margin-top: 15px; }
+
+.tabla-resumen-container table {
+  width: 100%;
+  font-size: 0.75rem;
+  border-collapse: collapse;
+  margin-top: 5px;
+}
+
+.tabla-resumen-container thead tr {
+  background: #f1f5f9;
+  text-align: left;
+}
+
+.tabla-resumen-container tbody tr {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tabla-resumen-container td, .tabla-resumen-container th {
+  padding: 4px 6px;
+}
+
+.tabla-resumen-container .icono-accion {
+  cursor: pointer;
+  margin-right: 6px;
+}
+
+.tabla-resumen-container .icono-editar { color: #0284c7; }
+.tabla-resumen-container .icono-eliminar { color: var(--accent-red); }
+
+.texto-vacio {
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+/* BOTONES */
+button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  transition: background-color 0.15s, opacity 0.15s;
+}
+
+button:active { opacity: 0.9; }
+
+.btn-primary { background-color: var(--accent-blue); color: white; }
+.btn-primary:hover { background-color: #1d4ed8; }
+
+.btn-warning { background-color: var(--brand-primary); color: white; }
+.btn-warning:hover { background-color: #b45309; }
+
+.btn-success { background-color: #059669; color: white; }
+.btn-success:hover { background-color: #047857; }
+
+.btn-secondary { background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+.btn-secondary:hover { background-color: #e2e8f0; }
+
+.btn-auto { width: auto; }
+.btn-sm { padding: 6px 10px; font-size: 0.78rem; margin-top: 6px; }
+.btn-slim { padding: 5px 11px; font-size: 0.78rem; height: auto; line-height: 1.2; }

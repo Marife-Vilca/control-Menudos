@@ -1,0 +1,116 @@
+.kds-header {
+  background-color: #ffffff;
+  border-bottom: 2px solid var(--border-color);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  background-color: #fef3c7;
+  color: var(--brand-primary);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.brand h1 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.header-stats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.header-day-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--bg-card-alt);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.header-day-selector label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 0;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-day-selector label i {
+  color: var(--brand-primary);
+  font-size: 0.8rem;
+}
+
+.form-control-day {
+  width: auto;
+  height: 28px;
+  padding: 2px 24px 2px 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-main);
+  background-color: #ffffff;
+  border: 1px solid var(--border-dark);
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+  line-height: 1.2;
+}
+
+.form-control-day:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);
+}
+
+.stat-card {
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border-color);
+  padding: 6px 12px;
+  border-radius: 8px;
+  text-align: center;
+  flex: 1;
+  min-width: 80px;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.text-vaca { color: var(--accent-blue); }
+.text-toro { color: var(--accent-purple); }
+.text-danger { color: var(--accent-red); }

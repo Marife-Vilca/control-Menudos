@@ -1,0 +1,65 @@
+/* Tablets y pantallas medianas (≤ 1024px) */
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    padding: 14px;
+    gap: 16px;
+  }
+}
+
+/* Smartphones en orientación vertical (≤ 640px) */
+@media (max-width: 640px) {
+  .kds-header {
+    padding: 10px 14px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .brand h1 { font-size: 1.1rem; }
+
+  .header-stats {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .stat-card { padding: 4px 6px; }
+  .stat-value { font-size: 1rem; }
+
+  .dashboard-grid { padding: 10px; }
+
+  .panel-card,
+  .stock-dashboard-bar,
+  .tickets-container-wrapper {
+    padding: 12px;
+  }
+
+  .form-row-2 { grid-template-columns: 1fr; }
+
+  .pedido-item-row,
+  .lote-row {
+    gap: 6px;
+  }
+
+  .pedido-item-row .ped-prod,
+  .pedido-item-row .ped-tipo,
+  .pedido-item-row .campo-voz,
+  .lote-row .campo-voz:nth-child(1),
+  .lote-row .campo-voz:nth-child(2) {
+    flex: 1 1 100%;
+  }
+
+  input, select {
+    font-size: 16px; /* Evita el zoom automático de iOS en inputs */
+    padding: 8px 6px;
+  }
+
+  .btn-voz, .btn-leer { width: 38px; }
+
+  .modal-item-fila { flex-wrap: wrap; }
+  .modal-item-fila .campo-cantidad { width: 100%; }
+
+  .tickets-grid { grid-template-columns: 1fr; }
+
+  .stock-cards-grid { grid-template-columns: 1fr; }
+}
