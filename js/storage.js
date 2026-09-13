@@ -24,9 +24,6 @@ function migrarEstado(parsedState) {
 
   Object.values(parsedState.ciclos || {}).forEach((ciclo) => {
     if (!ciclo.lotesHistorico) ciclo.lotesHistorico = [];
-    ciclo.lotesHistorico.forEach((lote) => {
-      if (lote.costoTotal === undefined) lote.costoTotal = 0;
-    });
 
     if (!ciclo.pedidos) ciclo.pedidos = [];
     ciclo.pedidos.forEach((pedido) => {

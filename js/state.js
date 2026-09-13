@@ -167,12 +167,7 @@ function calcularTotalesCiclo(ciclo) {
     });
   });
 
-  const costoTotal = (ciclo.lotesHistorico || []).reduce(
-    (suma, lote) => suma + (Number(lote.costoTotal) || 0),
-    0
-  );
-
-  return { ingresoTotal, costoTotal, ganancia: ingresoTotal - costoTotal };
+  return { ingresoTotal };
 }
 
 export function resumenCicloEnVivo() {

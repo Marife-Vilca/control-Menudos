@@ -37,9 +37,8 @@ function historialDentroDe(dias) {
 
 function resumenDeCiclosCerrados(ciclos) {
   const ingresoTotal = ciclos.reduce((s, c) => s + (c.ingresoTotal || 0), 0);
-  const costoTotal = ciclos.reduce((s, c) => s + (c.costoTotal || 0), 0);
   const pedidos = ciclos.flatMap((c) => pedidosDespachados(c.pedidos));
-  return { ingresoTotal, costoTotal, ganancia: ingresoTotal - costoTotal, pedidos };
+  return { ingresoTotal, pedidos };
 }
 
 function tarjetaResumen(titulo, resumen, subtitulo = "") {
@@ -63,16 +62,8 @@ function tarjetaResumen(titulo, resumen, subtitulo = "") {
       </div>
       <div class="reporte-totales">
         <div class="reporte-total-item">
-          <span>Ingresos</span>
-          <strong class="text-toro">${formatearMoneda(resumen.ingresoTotal)}</strong>
-        </div>
-        <div class="reporte-total-item">
-          <span>Costo de lotes</span>
-          <strong class="text-danger">${formatearMoneda(resumen.costoTotal)}</strong>
-        </div>
-        <div class="reporte-total-item">
-          <span>Ganancia</span>
-          <strong class="${resumen.ganancia >= 0 ? "text-ganancia-positiva" : "text-danger"}">${formatearMoneda(resumen.ganancia)}</strong>
+          <span>Ventas totales</span>
+          <strong class="text-ganancia-positiva">${formatearMoneda(resumen.ingresoTotal)}</strong>
         </div>
       </div>
       <div class="reporte-ranking">

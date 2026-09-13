@@ -2,7 +2,7 @@
 // COMPONENTE: Ingreso de lotes (recepción) e historial del ciclo
 // =============================================================
 import { state, getCicloActual } from '../state.js';
-import { generarId, formatearMoneda, campoVozHTML } from '../utils.js';
+import { generarId, campoVozHTML } from '../utils.js';
 
 function filaLoteHTML() {
   return `
@@ -47,7 +47,6 @@ function renderHistorialLotes() {
         <td>${lote.proveedor}</td>
         <td>${lote.cantVaca}</td>
         <td>${lote.cantToro}</td>
-        <td>${formatearMoneda(lote.costoTotal || 0)}</td>
         <td>
           <i class="fa-solid fa-pen-to-square icono-accion icono-editar" data-action="editar-lote" data-id="${lote.id}"></i>
           <i class="fa-solid fa-trash-can icono-accion icono-eliminar" data-action="eliminar-lote" data-id="${lote.id}"></i>
@@ -56,14 +55,11 @@ function renderHistorialLotes() {
     )
     .join("");
 
-  const costoAcumulado = ciclo.lotesHistorico.reduce((s, l) => s + (l.costoTotal || 0), 0);
-
   contenedor.innerHTML = `
     <table>
-      <thead><tr><th>Fecha</th><th>Proveedor</th><th>Vaca</th><th>Toro</th><th>Costo</th><th>Acción</th></tr></thead>
+      <thead><tr><th>Fecha</th><th>Proveedor</th><th>Vaca</th><th>Toro</th><th>Acción</th></tr></thead>
       <tbody>${filas}</tbody>
     </table>
-    <p class="totales-linea">Costo total de lotes en este ciclo: <strong>${formatearMoneda(costoAcumulado)}</strong></p>
   `;
 }
 
@@ -100,7 +96,6 @@ export function configurarLotes(onChange) {
     const proveedor = document.getElementById("proveedor-nombre").value;
     const cantVaca = parseFloat(document.getElementById("lote-cant-vaca").value) || 0;
     const cantToro = parseFloat(document.getElementById("lote-cant-toro").value) || 0;
-    const costoTotal = parseFloat(document.getElementById("lote-costo-total").value) || 0;
 
     const personas = [];
     document.querySelectorAll(".lote-row").forEach((fila) => {
@@ -115,11 +110,10 @@ export function configurarLotes(onChange) {
       proveedor,
       cantVaca,
       cantToro,
-      costoTotal,
       personas
     });
 
-    alert(`Lote Ingresado para el ciclo [${state.diaActivo}]:\n+ ${cantVaca} Vacas\n+ ${cantToro} Toros\nCosto: ${formatearMoneda(costoTotal)}`);
+    alert(`Lote Ingresado para el ciclo [${state.diaActivo}]:\n+ ${cantVaca} Vacas\n+ ${cantToro} Toros`);
 
     form.reset();
     establecerFechaActual();
@@ -138,12 +132,9 @@ export function configurarLotes(onChange) {
       if (nVaca === null) return;
       const nToro = prompt("Cantidad de Menudos de Toro:", lote.cantToro);
       if (nToro === null) return;
-      const nCosto = prompt("Costo total pagado por el lote (S/):", lote.costoTotal || 0);
-      if (nCosto === null) return;
 
       lote.cantVaca = parseFloat(nVaca) || 0;
       lote.cantToro = parseFloat(nToro) || 0;
-      lote.costoTotal = parseFloat(nCosto) || 0;
       onChange();
       return;
     }

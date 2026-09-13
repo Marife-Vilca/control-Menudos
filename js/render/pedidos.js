@@ -26,7 +26,7 @@ function filaPedidoHTML() {
         attrs: 'min="1" step="1" required', valor: 1, modoVoz: "numero",
         ariaLabel: "Dictar cantidad por voz"
       })}
-      <input type="number" class="ped-peso" min="0.1" step="0.1" placeholder="Peso (kg)" style="display:none">
+      <input type="number" class="ped-peso" min="0.1" step="0.1" placeholder="Peso (kg) - se pesa después" style="display:none">
       <div class="precio-item-info">
         <span class="precio-item-unitario">S/ 0.00</span>
         <button type="button" class="btn-editar-precio-item" title="Cambiar precio para esta casera">
@@ -45,6 +45,42 @@ function getCaseraActual() {
   return document.getElementById("casera-nombre").value.trim();
 }
 
+/** Cantidad ya pedida en OTRAS filas del formulario para el mismo producto+tipo (evita que dos filas del mismo pedido se pisen entre sí). */
+function totalReservadoEnFormulario(prod, tipo, filaExcluir) {
+  let total = 0;
+  document.querySelectorAll(".pedido-item-row").forEach((fila) => {
+    if (fila === filaExcluir) return;
+    if (fila.querySelector(".ped-prod").value === prod && fila.querySelector(".ped-tipo").value === tipo) {
+      total += parseInt(fila.querySelector(".ped-cant-entera").value, 10) || 0;
+    }
+  });
+  return total;
+}
+
+/** Revisa que haya stock suficiente para TODOS los productos del pedido antes de crearlo. */
+function validarStockDisponible(items) {
+  const ciclo = getCicloActual();
+  const requerido = {};
+
+  items.forEach(({ prod, tipo, cant }) => {
+    const clave = `${prod}|${tipo}`;
+    requerido[clave] = (requerido[clave] || 0) + cant;
+  });
+
+  for (const clave of Object.keys(requerido)) {
+    const [prod, tipo] = clave.split("|");
+    const disponible = ciclo.stock[prod] ? ciclo.stock[prod][tipo] : 0;
+    if (requerido[clave] > disponible) {
+      return {
+        ok: false,
+        mensaje: `No se puede crear el pedido: no hay stock suficiente de ${prod.toUpperCase()} (${tipo}).\nDisponible: ${disponible} · Solicitado: ${requerido[clave]}.`
+      };
+    }
+  }
+
+  return { ok: true };
+}
+
 function actualizarFila(fila) {
   const prod = fila.querySelector(".ped-prod").value;
   const productoInfo = state.productos.find((p) => p.nombre === prod);
@@ -53,7 +89,6 @@ function actualizarFila(fila) {
   const inputCantidad = fila.querySelector(".ped-cant-entera");
   const inputPeso = fila.querySelector(".ped-peso");
   inputPeso.style.display = esKilo ? "block" : "none";
-  inputPeso.required = esKilo;
 
   const casera = getCaseraActual();
   const precioUnitario = getPrecioProducto(casera, prod);
@@ -63,6 +98,12 @@ function actualizarFila(fila) {
 
   fila.dataset.precioUnitario = precioUnitario;
   fila.dataset.subtotal = subtotal;
+
+  const tipo = fila.querySelector(".ped-tipo").value;
+  const ciclo = getCicloActual();
+  const disponibleStock = ciclo.stock[prod] ? ciclo.stock[prod][tipo] : 0;
+  const disponibleReal = disponibleStock - totalReservadoEnFormulario(prod, tipo, fila);
+  fila.classList.toggle("fila-sin-stock", cant > disponibleReal);
 
   const unidad = esKilo ? "/kg" : "/u";
   fila.querySelector(".precio-item-unitario").textContent = `${formatearMoneda(precioUnitario)}${unidad}`;
@@ -182,6 +223,12 @@ export function configurarPedidos(onChange) {
 
     if (items.length === 0) {
       alert("Por favor ingrese al menos un producto con cantidad mayor a 0.");
+      return;
+    }
+
+    const validacionStock = validarStockDisponible(items);
+    if (!validacionStock.ok) {
+      alert(validacionStock.mensaje);
       return;
     }
 

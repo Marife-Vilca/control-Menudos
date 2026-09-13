@@ -241,3 +241,15 @@ button:active { opacity: 0.9; }
   font-size: 0.85rem;
   color: var(--text-main);
 }
+
+/* Fila de pedido cuando la cantidad pedida supera el stock disponible */
+.pedido-item-row.fila-sin-stock {
+  background: #fef2f2;
+  border: 1px solid var(--accent-red);
+  border-radius: var(--radius-sm);
+  padding: 6px;
+}
+
+.pedido-item-row.fila-sin-stock .subtotal-item-linea {
+  color: var(--accent-red);
+}
