@@ -2,7 +2,7 @@
 // COMPONENTE: Control de calidad / mermas
 // =============================================================
 import { getCicloActual } from '../state.js';
-import { generarId, fechaActual } from '../utils.js';
+import { generarId, fechaActual, formatearCantidad } from '../utils.js';
 
 function renderHistorialCalidad() {
   const contenedor = document.getElementById("tabla-calidad-registrada");
@@ -56,6 +56,15 @@ export function configurarCalidad(onChange) {
     if (cantidad <= 0) {
       alert("Por favor ingrese una cantidad válida mayor a 0.");
       return;
+    }
+
+    const disponible = ciclo.stock[producto] ? ciclo.stock[producto][tipo] : 0;
+    if (cantidad > disponible) {
+      const continuar = confirm(
+        `Solo hay ${formatearCantidad(disponible)} unidades disponibles de ${producto.toUpperCase()} (${tipo}), ` +
+        `pero se está registrando una merma de ${cantidad}. ¿Desea continuar de todas formas?`
+      );
+      if (!continuar) return;
     }
 
     ciclo.calidadHistorico.push({

@@ -3,10 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Menudos & Pedidos - KDS Dashboard por Días</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>Control de Menudos & Pedidos - Dashboard</title>
 
     <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/nav.css">
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/panels.css">
@@ -14,6 +15,7 @@
     <link rel="stylesheet" href="css/tickets.css">
     <link rel="stylesheet" href="css/modal.css">
     <link rel="stylesheet" href="css/voice.css">
+    <link rel="stylesheet" href="css/reportes.css">
     <link rel="stylesheet" href="css/responsive.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -21,26 +23,63 @@
 
 <body>
 
-    <!-- HEADER CON CONTROL DE DÍA / CICLO -->
-    <header class="kds-header">
-        <div class="brand">
-            <div class="brand-icon"><i class="fa-solid fa-store"></i></div>
-            <div>
-                <h1>CONTROL DE MENUDOS</h1>
+    <!-- OVERLAY Y MENÚ HAMBURGUESA -->
+    <div id="nav-overlay" class="nav-overlay"></div>
+
+    <nav id="nav-drawer" class="nav-drawer">
+        <div class="nav-drawer-header">
+            <div class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-store"></i></div>
+                <h1>MENUDOS</h1>
             </div>
+            <button id="btn-cerrar-menu" class="btn-icono-nav" aria-label="Cerrar menú">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
 
-        <div class="header-day-selector">
-            <label for="select-dia-operativo"><i class="fa-solid fa-calendar-day"></i> Día Operativo:</label>
-            <select id="select-dia-operativo" class="form-control-day">
-                <option value="LUNES_MARTES" selected>Lun / Mar</option>
-                <option value="MIERCOLES_JUEVES">Mié / Jue</option>
-                <option value="VIERNES_SABADO">Vie / Sáb</option>
-                <option value="DOMINGO">Domingo</option>
-            </select>
+        <div class="nav-links">
+            <button class="nav-link nav-link-activo" data-vista="inicio">
+                <i class="fa-solid fa-house"></i> Inicio
+            </button>
+            <button class="nav-link" data-vista="catalogo">
+                <i class="fa-solid fa-tags"></i> Catálogo &amp; Precios
+            </button>
+            <button class="nav-link" data-vista="lote">
+                <i class="fa-solid fa-truck-ramp-box"></i> Ingreso de Lote
+            </button>
+            <button class="nav-link" data-vista="calidad">
+                <i class="fa-solid fa-triangle-exclamation"></i> Calidad / Mermas
+            </button>
+            <button class="nav-link" data-vista="reportes">
+                <i class="fa-solid fa-chart-line"></i> Reportes
+            </button>
         </div>
+    </nav>
 
-        <div class="header-stats">
+    <div class="app-shell">
+
+        <!-- BARRA SUPERIOR -->
+        <header class="topbar">
+            <button id="btn-abrir-menu" class="btn-icono-nav" aria-label="Abrir menú">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <div class="topbar-brand">
+                <span class="topbar-titulo">CONTROL DE MENUDOS</span>
+            </div>
+
+            <div class="header-day-selector">
+                <label for="select-dia-operativo"><i class="fa-solid fa-calendar-day"></i></label>
+                <select id="select-dia-operativo" class="form-control-day">
+                    <option value="LUNES_MARTES" selected>Lun / Mar</option>
+                    <option value="MIERCOLES_JUEVES">Mié / Jue</option>
+                    <option value="VIERNES_SABADO">Vie / Sáb</option>
+                    <option value="DOMINGO">Domingo</option>
+                </select>
+            </div>
+        </header>
+
+        <div class="topbar-stats">
             <div class="stat-card">
                 <span class="stat-label">Vaca</span>
                 <span class="stat-value text-vaca" id="hdr-vaca">0</span>
@@ -53,329 +92,459 @@
                 <span class="stat-label">Pedidos</span>
                 <span class="stat-value text-danger" id="hdr-total-pedidos">0</span>
             </div>
+            <div class="stat-card accent">
+                <span class="stat-label">Por Cobrar</span>
+                <span class="stat-value text-ganancia-positiva" id="hdr-por-cobrar">S/ 0.00</span>
+            </div>
         </div>
-    </header>
 
-    <main class="dashboard-grid">
+        <main id="app-contenido" class="app-contenido">
 
-        <!-- COLUMNA IZQUIERDA: REGISTRO Y FORMULARIOS -->
-        <aside class="sidebar-panel">
+            <!-- ============================================================= -->
+            <!-- VISTA: INICIO (Inventario + Pedido + Tablero de Tiques)       -->
+            <!-- ============================================================= -->
+            <section class="vista vista-activa vista-inicio" data-vista="inicio">
 
-            <!-- COMPONENTE: CATÁLOGO DE PRODUCTOS -->
-            <section class="panel-card">
-                <div class="panel-header">
-                    <i class="fa-solid fa-tags"></i>
-                    <h2>Catálogo de Productos</h2>
+                <div class="inicio-grid">
+                    <div class="inicio-columna-izquierda">
+
+                        <!-- INVENTARIO -->
+                        <div class="stock-dashboard-bar">
+                            <h3><i class="fa-solid fa-warehouse"></i> Inventario Disponible del Día</h3>
+                            <div class="stock-cards-grid" id="stock-cards-grid"></div>
+                        </div>
+
+                        <!-- PEDIDO DE CASERA -->
+                        <section class="panel-card">
+                            <div class="panel-header">
+                                <i class="fa-solid fa-receipt"></i>
+                                <h2>Pedido de Casera (Entrega)</h2>
+                            </div>
+
+                            <form id="form-pedido">
+                                <div class="form-group">
+                                    <label for="casera-nombre">Nombre de la Casera:</label>
+                                    <div class="campo-voz">
+                                        <input type="text" id="casera-nombre" placeholder="Nombre de la casera" required />
+                                        <div class="acciones-voz">
+                                            <button type="button" class="btn-voz" data-modo="texto" aria-label="Dictar nombre de la casera por voz">
+                                                <i class="fa-solid fa-microphone"></i>
+                                            </button>
+                                            <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                                <i class="fa-solid fa-volume-high"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Detalle del Pedido:</label>
+                                    <div id="pedido-items-container"></div>
+                                    <button type="button" class="btn-secondary btn-sm" id="btn-add-pedido-row">
+                                        <i class="fa-solid fa-plus"></i> Agregar Producto
+                                    </button>
+                                </div>
+
+                                <div class="total-preview-linea">
+                                    <span>Total del pedido</span>
+                                    <strong id="pedido-total-preview">S/ 0.00</strong>
+                                </div>
+
+                                <button type="submit" class="btn-primary">
+                                    <i class="fa-solid fa-paper-plane"></i> Generar Tique de Pedido
+                                </button>
+                            </form>
+                        </section>
+                    </div>
+
+                    <div class="inicio-columna-derecha">
+                        <!-- TABLERO DE TIQUES -->
+                        <div class="tickets-container-wrapper">
+                            <div class="tickets-header">
+                                <h2><i class="fa-solid fa-receipt"></i> Tablero de Tiques del Día</h2>
+
+                                <div class="tickets-actions">
+                                    <button type="button" class="btn-secondary btn-sm" id="btn-cerrar-ciclo">
+                                        <i class="fa-solid fa-box-archive"></i> Cerrar Ciclo
+                                    </button>
+                                    <button type="button" class="btn-success btn-sm" id="btn-export-pdf-dia">
+                                        <i class="fa-solid fa-file-pdf"></i> Descargar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="legend">
+                                <span class="badge-dot dot-ok"></span> Completo
+                                <span class="badge-dot dot-danger"></span> Sin Stock
+                            </div>
+
+                            <div class="tickets-grid" id="tickets-grid"></div>
+                        </div>
+                    </div>
                 </div>
-                <form id="form-nuevo-producto">
-                    <div class="form-group">
-                        <label for="nuevo-prod-nombre">Nombre del Producto:</label>
-                        <div class="campo-voz">
-                            <input type="text" id="nuevo-prod-nombre" placeholder="Ej: Pata, Riñón, Cabeza..." required>
-                            <div class="acciones-voz">
-                            <button type="button" class="btn-voz" data-modo="texto" aria-label="Dictar nombre por voz">
-                                <i class="fa-solid fa-microphone"></i>
-                            </button>
-                            <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
-                                <i class="fa-solid fa-volume-high"></i>
-                            </button>
-                        </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="nuevo-prod-rendimiento">Piezas por Menudo:</label>
-                        <div class="campo-voz">
-                            <input type="number" id="nuevo-prod-rendimiento" min="1" value="1"
-                                placeholder="Ej: 4 patas, 2 riñones" required>
-                            <div class="acciones-voz">
-                            <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar cantidad por voz">
-                                <i class="fa-solid fa-microphone"></i>
-                            </button>
-                            <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
-                                <i class="fa-solid fa-volume-high"></i>
-                            </button>
-                        </div>
-                        </div>
-                    </div>
-
-                    <button type="submit" id="btn-guardar-prod" class="btn-primary btn-auto btn-slim">
-                        <i class="fa-solid fa-plus"></i> <span id="btn-text">Añadir al Catálogo</span>
-                    </button>
-                </form>
-
-                <div id="lista-productos-tags" class="tags-container"></div>
             </section>
 
-            <!-- COMPONENTE: INGRESO DE LOTE -->
-            <section class="panel-card">
-                <div class="panel-header">
-                    <i class="fa-solid fa-truck-ramp-box"></i>
-                    <h2>1. Ingreso de Lote (Día de Recepción)</h2>
-                </div>
+            <!-- ============================================================= -->
+            <!-- VISTA: CATÁLOGO Y PRECIOS                                      -->
+            <!-- ============================================================= -->
+            <section class="vista" data-vista="catalogo">
 
-                <form id="form-lote">
-                    <div class="form-row-2">
-                        <div class="form-group">
-                            <label for="fechaIngreso">Fecha de Ingreso:</label>
-                            <input type="date" id="fechaIngreso" name="fechaIngreso" class="form-control" required />
-                        </div>
-                        <div class="form-group">
-                            <label for="proveedor-nombre">Proveedor / Origen:</label>
-                            <div class="campo-voz">
-                                <input type="text" id="proveedor-nombre" placeholder="Ej: Camal San Pedro" required>
-                                <div class="acciones-voz">
-                            <button type="button" class="btn-voz" data-modo="texto" aria-label="Dictar proveedor por voz">
-                                    <i class="fa-solid fa-microphone"></i>
-                                </button>
-                            <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
-                                <i class="fa-solid fa-volume-high"></i>
-                            </button>
-                        </div>
-                            </div>
-                        </div>
+                <section class="panel-card">
+                    <div class="panel-header">
+                        <i class="fa-solid fa-tags"></i>
+                        <h2>Catálogo de Productos</h2>
                     </div>
-
-                    <div class="form-row-2">
+                    <form id="form-nuevo-producto">
                         <div class="form-group">
-                            <label for="lote-cant-vaca">Menudos de Vaca:</label>
+                            <label for="nuevo-prod-nombre">Nombre del Producto:</label>
                             <div class="campo-voz">
-                                <input type="number" id="lote-cant-vaca" min="0" value="0" step="1" required>
+                                <input type="text" id="nuevo-prod-nombre" placeholder="Ej: Pata, Riñón, Cabeza..." required>
                                 <div class="acciones-voz">
-                            <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar cantidad de vaca por voz">
-                                    <i class="fa-solid fa-microphone"></i>
-                                </button>
-                            <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
-                                <i class="fa-solid fa-volume-high"></i>
-                            </button>
-                        </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="lote-cant-toro">Menudos de Toro:</label>
-                            <div class="campo-voz">
-                                <input type="number" id="lote-cant-toro" min="0" value="0" step="1" required>
-                                <div class="acciones-voz">
-                            <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar cantidad de toro por voz">
-                                    <i class="fa-solid fa-microphone"></i>
-                                </button>
-                            <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
-                                <i class="fa-solid fa-volume-high"></i>
-                            </button>
-                        </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Orden de Distribución / Personas:</label>
-                        <div id="lote-detalles-container">
-                            <div class="lote-row">
-                                <div class="campo-voz">
-                                    <input type="number" class="lote-cantidad" placeholder="Cant." min="1" value="2" required>
-                                    <div class="acciones-voz">
-                            <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar cantidad por voz">
+                                    <button type="button" class="btn-voz" data-modo="texto" aria-label="Dictar nombre por voz">
                                         <i class="fa-solid fa-microphone"></i>
                                     </button>
-                            <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
-                                <i class="fa-solid fa-volume-high"></i>
-                            </button>
-                        </div>
-                                </div>
-                                <div class="campo-voz">
-                                    <input type="text" class="lote-persona" placeholder="Nombre de la persona" required>
-                                    <div class="acciones-voz">
-                            <button type="button" class="btn-voz" data-modo="texto" aria-label="Dictar nombre por voz">
-                                        <i class="fa-solid fa-microphone"></i>
+                                    <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                        <i class="fa-solid fa-volume-high"></i>
                                     </button>
-                            <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
-                                <i class="fa-solid fa-volume-high"></i>
-                            </button>
-                        </div>
                                 </div>
-                                <button type="button" class="btn-remove-row" data-action="quitar-fila-lote">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </button>
                             </div>
                         </div>
-                        <button type="button" class="btn-secondary btn-sm" id="btn-add-lote-row">
-                            <i class="fa-solid fa-plus"></i> Agregar Persona
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="nuevo-prod-rendimiento">Piezas por Menudo:</label>
+                                <div class="campo-voz">
+                                    <input type="number" id="nuevo-prod-rendimiento" min="1" value="1"
+                                        placeholder="Ej: 4 patas, 2 riñones" required>
+                                    <div class="acciones-voz">
+                                        <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar cantidad por voz">
+                                            <i class="fa-solid fa-microphone"></i>
+                                        </button>
+                                        <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                            <i class="fa-solid fa-volume-high"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="nuevo-prod-tipo-precio">Se cobra por:</label>
+                                <select id="nuevo-prod-tipo-precio">
+                                    <option value="unidad">Precio general (por unidad)</option>
+                                    <option value="kilo">Por kilo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nuevo-prod-precio">Precio Base (S/):</label>
+                            <div class="campo-voz">
+                                <input type="number" id="nuevo-prod-precio" min="0" step="0.10" value="0" required>
+                                <div class="acciones-voz">
+                                    <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar precio por voz">
+                                        <i class="fa-solid fa-microphone"></i>
+                                    </button>
+                                    <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                        <i class="fa-solid fa-volume-high"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="help-text">Este es el precio por defecto. Para una casera específica, usa "Precios Especiales" abajo.</small>
+                        </div>
+
+                        <div class="form-row-2">
+                            <button type="submit" id="btn-guardar-prod" class="btn-primary btn-slim">
+                                <i class="fa-solid fa-plus"></i> <span id="btn-text">Añadir al Catálogo</span>
+                            </button>
+                            <button type="button" id="btn-cancelar-edicion-prod" class="btn-secondary btn-slim">
+                                Cancelar edición
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="lista-productos-tags" class="tags-container"></div>
+                </section>
+
+                <section class="panel-card">
+                    <div class="panel-header">
+                        <i class="fa-solid fa-user-tag"></i>
+                        <h2>Precios Especiales por Casera</h2>
+                    </div>
+                    <p class="help-text">La mayoría de caseras paga el precio base. Registra aquí solo las excepciones.</p>
+
+                    <form id="form-precio-especial">
+                        <div class="form-group">
+                            <label for="precio-especial-casera">Casera:</label>
+                            <div class="campo-voz">
+                                <input type="text" id="precio-especial-casera" placeholder="Nombre de la casera" required>
+                                <div class="acciones-voz">
+                                    <button type="button" class="btn-voz" data-modo="texto" aria-label="Dictar nombre por voz">
+                                        <i class="fa-solid fa-microphone"></i>
+                                    </button>
+                                    <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                        <i class="fa-solid fa-volume-high"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="precio-especial-producto">Producto:</label>
+                                <select id="precio-especial-producto" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="precio-especial-valor">Precio especial (S/):</label>
+                                <input type="number" id="precio-especial-valor" min="0.10" step="0.10" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            <i class="fa-solid fa-plus"></i> Guardar Precio Especial
                         </button>
+                    </form>
+
+                    <div class="historial-seccion">
+                        <div id="lista-precios-especiales" class="tabla-resumen-container"></div>
                     </div>
-
-                    <button type="submit" class="btn-primary">
-                        <i class="fa-solid fa-boxes-packing"></i> Registrar Lote del Día
-                    </button>
-                </form>
-
-                <div class="historial-seccion">
-                    <label class="help-text"><strong>Lotes Registrados en el Ciclo:</strong></label>
-                    <div id="tabla-lotes-registrados" class="tabla-resumen-container"></div>
-                </div>
+                </section>
             </section>
 
-            <!-- COMPONENTE: CONTROL DE CALIDAD -->
-            <section class="panel-card">
-                <div class="panel-header">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <h2>2. Control de Calidad / Mermas</h2>
-                </div>
-                <form id="form-calidad">
-                    <div class="form-row-2">
-                        <div class="form-group">
-                            <label for="calidad-producto">Producto:</label>
-                            <select id="calidad-producto" required></select>
+            <!-- ============================================================= -->
+            <!-- VISTA: INGRESO DE LOTE                                         -->
+            <!-- ============================================================= -->
+            <section class="vista" data-vista="lote">
+                <section class="panel-card">
+                    <div class="panel-header">
+                        <i class="fa-solid fa-truck-ramp-box"></i>
+                        <h2>Ingreso de Lote (Día de Matanza)</h2>
+                    </div>
+
+                    <form id="form-lote">
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="fechaIngreso">Fecha de Ingreso:</label>
+                                <input type="date" id="fechaIngreso" name="fechaIngreso" class="form-control" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="proveedor-nombre">Proveedor / Origen:</label>
+                                <div class="campo-voz">
+                                    <input type="text" id="proveedor-nombre" placeholder="Ej: Camal San Pedro" required>
+                                    <div class="acciones-voz">
+                                        <button type="button" class="btn-voz" data-modo="texto" aria-label="Dictar proveedor por voz">
+                                            <i class="fa-solid fa-microphone"></i>
+                                        </button>
+                                        <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                            <i class="fa-solid fa-volume-high"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="lote-cant-vaca">Menudos de Vaca:</label>
+                                <div class="campo-voz">
+                                    <input type="number" id="lote-cant-vaca" min="0" value="0" step="1" required>
+                                    <div class="acciones-voz">
+                                        <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar cantidad de vaca por voz">
+                                            <i class="fa-solid fa-microphone"></i>
+                                        </button>
+                                        <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                            <i class="fa-solid fa-volume-high"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="lote-cant-toro">Menudos de Toro:</label>
+                                <div class="campo-voz">
+                                    <input type="number" id="lote-cant-toro" min="0" value="0" step="1" required>
+                                    <div class="acciones-voz">
+                                        <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar cantidad de toro por voz">
+                                            <i class="fa-solid fa-microphone"></i>
+                                        </button>
+                                        <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                            <i class="fa-solid fa-volume-high"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="form-group">
-                            <label for="calidad-tipo">Origen:</label>
-                            <select id="calidad-tipo" required>
-                                <option value="vaca">Vaca</option>
-                                <option value="toro">Toro</option>
+                            <label for="lote-costo-total">Costo Total del Lote (S/):</label>
+                            <div class="campo-voz">
+                                <input type="number" id="lote-costo-total" min="0" step="0.50" value="0" required>
+                                <div class="acciones-voz">
+                                    <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar costo por voz">
+                                        <i class="fa-solid fa-microphone"></i>
+                                    </button>
+                                    <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                        <i class="fa-solid fa-volume-high"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="help-text">Lo que se pagó por todo el lote (vaca + toro juntos). Se usa para calcular la ganancia en Reportes.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Orden de Distribución / Personas:</label>
+                            <div id="lote-detalles-container">
+                                <div class="lote-row">
+                                    <div class="campo-voz">
+                                        <input type="number" class="lote-cantidad" placeholder="Cant." min="1" value="2" required>
+                                        <div class="acciones-voz">
+                                            <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar cantidad por voz">
+                                                <i class="fa-solid fa-microphone"></i>
+                                            </button>
+                                            <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                                <i class="fa-solid fa-volume-high"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="campo-voz">
+                                        <input type="text" class="lote-persona" placeholder="Nombre de la persona" required>
+                                        <div class="acciones-voz">
+                                            <button type="button" class="btn-voz" data-modo="texto" aria-label="Dictar nombre por voz">
+                                                <i class="fa-solid fa-microphone"></i>
+                                            </button>
+                                            <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                                <i class="fa-solid fa-volume-high"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn-remove-row" data-action="quitar-fila-lote">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-secondary btn-sm" id="btn-add-lote-row">
+                                <i class="fa-solid fa-plus"></i> Agregar Persona
+                            </button>
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            <i class="fa-solid fa-boxes-packing"></i> Registrar Lote del Día
+                        </button>
+                    </form>
+
+                    <div class="historial-seccion">
+                        <label class="help-text"><strong>Lotes Registrados en el Ciclo:</strong></label>
+                        <div id="tabla-lotes-registrados" class="tabla-resumen-container"></div>
+                    </div>
+                </section>
+            </section>
+
+            <!-- ============================================================= -->
+            <!-- VISTA: CALIDAD / MERMAS                                        -->
+            <!-- ============================================================= -->
+            <section class="vista" data-vista="calidad">
+                <section class="panel-card">
+                    <div class="panel-header">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <h2>Control de Calidad / Mermas</h2>
+                    </div>
+                    <form id="form-calidad">
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="calidad-producto">Producto:</label>
+                                <select id="calidad-producto" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="calidad-tipo">Origen:</label>
+                                <select id="calidad-tipo" required>
+                                    <option value="vaca">Vaca</option>
+                                    <option value="toro">Toro</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="calidad-estado">Estado / Destino:</label>
+                            <select id="calidad-estado" required>
+                                <option value="MALO">1. Totalmente Malogrado (Descarte total)</option>
+                                <option value="FILETEO">2. Parcial / Fileteo (Pieza recuperada aparte - No venta casera)</option>
+                                <option value="PROVEEDOR">3. Devuelto al Proveedor (Retirado)</option>
                             </select>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="calidad-estado">Estado / Destino:</label>
-                        <select id="calidad-estado" required>
-                            <option value="MALO">1. Totalmente Malogrado (Descarte total)</option>
-                            <option value="FILETEO">2. Parcial / Fileteo (Pieza recuperada aparte - No venta casera)</option>
-                            <option value="PROVEEDOR">3. Devuelto al Proveedor (Retirado)</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="cantidadAfectada">Cantidad Afectada (Unidades):</label>
-                        <div class="campo-voz">
-                            <input type="number" id="cantidadAfectada" name="cantidadAfectada" min="1" step="1" value="1"
-                                placeholder="Ej. 1" required>
-                            <div class="acciones-voz">
-                            <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar cantidad afectada por voz">
-                                <i class="fa-solid fa-microphone"></i>
-                            </button>
-                            <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
-                                <i class="fa-solid fa-volume-high"></i>
-                            </button>
+                        <div class="form-group">
+                            <label for="cantidadAfectada">Cantidad Afectada (Unidades):</label>
+                            <div class="campo-voz">
+                                <input type="number" id="cantidadAfectada" name="cantidadAfectada" min="1" step="1" value="1"
+                                    placeholder="Ej. 1" required>
+                                <div class="acciones-voz">
+                                    <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar cantidad afectada por voz">
+                                        <i class="fa-solid fa-microphone"></i>
+                                    </button>
+                                    <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                        <i class="fa-solid fa-volume-high"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="help-text">Se descuenta de las piezas disponibles del ciclo activo.</small>
                         </div>
-                        </div>
-                        <small class="help-text">Se descuenta de las piezas disponibles del ciclo activo.</small>
+
+                        <button type="submit" class="btn-warning">
+                            <i class="fa-solid fa-eraser"></i> Registrar en Control de Calidad
+                        </button>
+                    </form>
+
+                    <div class="historial-seccion">
+                        <label class="help-text"><strong>Mermas / Descartes Registrados:</strong></label>
+                        <div id="tabla-calidad-registrada" class="tabla-resumen-container"></div>
                     </div>
-
-                    <button type="submit" class="btn-warning">
-                        <i class="fa-solid fa-eraser"></i> Registrar en Control de Calidad
-                    </button>
-                </form>
-
-                <div class="historial-seccion">
-                    <label class="help-text"><strong>Mermas / Descartes Registrados:</strong></label>
-                    <div id="tabla-calidad-registrada" class="tabla-resumen-container"></div>
-                </div>
+                </section>
             </section>
 
-            <!-- COMPONENTE: PEDIDO DE CASERA -->
-            <section class="panel-card">
-                <div class="panel-header">
-                    <i class="fa-solid fa-receipt"></i>
-                    <h2>3. Pedido de Casera (Entrega)</h2>
-                </div>
-
-                <form id="form-pedido">
-                    <div class="form-group">
-                        <label for="casera-nombre">Nombre de la Casera:</label>
-                        <div class="campo-voz">
-                            <input type="text" id="casera-nombre" placeholder="Nombre de la casera" required />
-                            <div class="acciones-voz">
-                            <button type="button" class="btn-voz" data-modo="texto" aria-label="Dictar nombre de la casera por voz">
-                                <i class="fa-solid fa-microphone"></i>
-                            </button>
-                            <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
-                                <i class="fa-solid fa-volume-high"></i>
-                            </button>
-                        </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Detalle del Pedido:</label>
-                        <div id="pedido-items-container"></div>
-                        <button type="button" class="btn-secondary btn-sm" id="btn-add-pedido-row">
-                            <i class="fa-solid fa-plus"></i> Agregar Producto
-                        </button>
-                    </div>
-
-                    <button type="submit" class="btn-primary">
-                        <i class="fa-solid fa-paper-plane"></i> Generar Tique de Pedido
-                    </button>
-                </form>
+            <!-- ============================================================= -->
+            <!-- VISTA: REPORTES                                                -->
+            <!-- ============================================================= -->
+            <section class="vista" data-vista="reportes">
+                <div id="reportes-grid" class="reportes-grid"></div>
             </section>
 
-        </aside>
+        </main>
+    </div>
 
-        <!-- COLUMNA DERECHA: PANTALLA Y TABLERO KDS -->
-        <section class="kds-main-panel">
+    <!-- COMPONENTE: MODAL DE EDICIÓN DE PEDIDO -->
+    <div id="modal-editar-pedido" class="modal-overlay">
+        <div class="modal-box">
+            <h3><i class="fa-solid fa-pen-to-square"></i> Editar Pedido</h3>
 
-            <!-- COMPONENTE: INVENTARIO -->
-            <div class="stock-dashboard-bar">
-                <h3><i class="fa-solid fa-warehouse"></i> Inventario Disponible del Día</h3>
-                <div class="stock-cards-grid" id="stock-cards-grid"></div>
-            </div>
-
-            <!-- COMPONENTE: TABLERO DE TIQUES -->
-            <div class="tickets-container-wrapper">
-                <div class="tickets-header">
-                    <h2><i class="fa-solid fa-receipt"></i> Tablero de Tiques del Día</h2>
-
-                    <div class="tickets-actions">
-                        <button type="button" class="btn-success btn-sm" id="btn-export-pdf-dia">
-                            <i class="fa-solid fa-file-pdf"></i> Descargar
-                        </button>
-                        <span class="legend">
-                            <span class="badge-dot dot-ok"></span> Completo
-                            <span class="badge-dot dot-danger"></span> Sin Stock
-                        </span>
-                    </div>
-                </div>
-
-                <div class="tickets-grid" id="tickets-grid"></div>
-            </div>
-
-        </section>
-
-        <!-- COMPONENTE: MODAL DE EDICIÓN DE PEDIDO -->
-        <div id="modal-editar-pedido" class="modal-overlay">
-            <div class="modal-box">
-                <h3><i class="fa-solid fa-pen-to-square"></i> Editar Pedido</h3>
-
-                <div class="modal-campo">
-                    <label for="edit-casera-nombre">Nombre de Casera / Cliente</label>
-                    <div class="campo-voz">
-                        <input type="text" id="edit-casera-nombre" required>
-                        <div class="acciones-voz">
-                            <button type="button" class="btn-voz" data-modo="texto" aria-label="Dictar nombre por voz">
+            <div class="modal-campo">
+                <label for="edit-casera-nombre">Nombre de Casera / Cliente</label>
+                <div class="campo-voz">
+                    <input type="text" id="edit-casera-nombre" required>
+                    <div class="acciones-voz">
+                        <button type="button" class="btn-voz" data-modo="texto" aria-label="Dictar nombre por voz">
                             <i class="fa-solid fa-microphone"></i>
                         </button>
-                            <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
-                                <i class="fa-solid fa-volume-high"></i>
-                            </button>
-                        </div>
+                        <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
                     </div>
                 </div>
+            </div>
 
-                <label class="help-text"><strong>Productos del Pedido</strong></label>
-                <div id="edit-pedido-items-container" class="modal-items-lista"></div>
+            <label class="help-text"><strong>Productos del Pedido</strong></label>
+            <div id="edit-pedido-items-container" class="modal-items-lista"></div>
 
-                <button type="button" id="btn-agregar-item-modal" class="btn-agregar-item-modal">
-                    <i class="fa-solid fa-plus"></i> Añadir Producto
-                </button>
+            <button type="button" id="btn-agregar-item-modal" class="btn-agregar-item-modal">
+                <i class="fa-solid fa-plus"></i> Añadir Producto
+            </button>
 
-                <div class="modal-footer">
-                    <button type="button" id="btn-cancelar-modal" class="btn-cancelar-modal">Cancelar</button>
-                    <button type="button" id="btn-guardar-modal" class="btn-guardar-modal">Guardar Cambios</button>
-                </div>
+            <div class="total-preview-linea">
+                <span>Total del pedido</span>
+                <strong id="modal-total-preview">S/ 0.00</strong>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="btn-cancelar-modal" class="btn-cancelar-modal">Cancelar</button>
+                <button type="button" id="btn-guardar-modal" class="btn-guardar-modal">Guardar Cambios</button>
             </div>
         </div>
-
-    </main>
+    </div>
 
     <!-- Librerías para generación de PDF en el frontend -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>

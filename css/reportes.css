@@ -1,0 +1,124 @@
+/* ============================================================
+   VISTA: REPORTES
+   ============================================================ */
+
+.reportes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.reporte-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-4);
+}
+
+.reporte-card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.reporte-card-header h3 {
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.reporte-subtitulo {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.reporte-totales {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.reporte-total-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.reporte-total-item strong {
+  font-size: 1rem;
+}
+
+.reporte-ranking h4 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--space-2);
+  letter-spacing: 0.03em;
+}
+
+.ranking-fila {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--border-color);
+  font-size: 0.85rem;
+}
+
+.ranking-fila:last-child { border-bottom: none; }
+
+.ranking-pos {
+  font-weight: 800;
+  color: var(--brand-primary);
+  width: 24px;
+  flex-shrink: 0;
+}
+
+.ranking-nombre {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.ranking-monto {
+  font-weight: 800;
+  color: var(--accent-green);
+  flex-shrink: 0;
+}
+
+.totales-linea {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: var(--space-2);
+}
+
+.total-preview-linea {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin: var(--space-3) 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.total-preview-linea strong {
+  font-size: 1.05rem;
+  color: var(--text-main);
+}

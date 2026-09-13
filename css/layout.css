@@ -1,19 +1,20 @@
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 420px 1fr;
-  gap: 20px;
-  padding: 20px;
-  flex: 1;
-}
-
-.sidebar-panel {
+.inicio-grid {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-4);
 }
 
-.kds-main-panel {
+.inicio-columna-izquierda,
+.inicio-columna-derecha {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-4);
+}
+
+@media (min-width: 900px) {
+  .inicio-grid {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    align-items: start;
+  }
 }

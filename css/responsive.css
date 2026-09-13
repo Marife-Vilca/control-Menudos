@@ -1,36 +1,29 @@
 /* Tablets y pantallas medianas (≤ 1024px) */
 @media (max-width: 1024px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-    padding: 14px;
-    gap: 16px;
-  }
+  .app-contenido { padding: 14px; }
 }
 
-/* Smartphones en orientación vertical (≤ 640px) */
+/* Smartphones en orientación vertical (≤ 640px) — la app está pensada
+   primero para este tamaño; el resto de reglas amplían para pantallas
+   más grandes. */
 @media (max-width: 640px) {
-  .kds-header {
-    padding: 10px 14px;
-    flex-direction: column;
-    align-items: stretch;
-  }
+  .topbar-titulo { font-size: 0.85rem; }
 
-  .brand h1 { font-size: 1.1rem; }
-
-  .header-stats {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+  .topbar-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    padding: 10px;
   }
 
   .stat-card { padding: 4px 6px; }
   .stat-value { font-size: 1rem; }
 
-  .dashboard-grid { padding: 10px; }
+  .app-contenido { padding: 10px; }
 
   .panel-card,
   .stock-dashboard-bar,
-  .tickets-container-wrapper {
+  .tickets-container-wrapper,
+  .reporte-card {
     padding: 12px;
   }
 
@@ -44,10 +37,15 @@
   .pedido-item-row .ped-prod,
   .pedido-item-row .ped-tipo,
   .pedido-item-row .campo-voz,
+  .pedido-item-row .ped-peso,
+  .pedido-item-row .precio-item-info,
+  .pedido-item-row .subtotal-item-linea,
   .lote-row .campo-voz:nth-child(1),
   .lote-row .campo-voz:nth-child(2) {
     flex: 1 1 100%;
   }
+
+  .subtotal-item-linea { text-align: left; }
 
   input, select {
     font-size: 16px; /* Evita el zoom automático de iOS en inputs */
@@ -57,9 +55,18 @@
   .btn-voz, .btn-leer { width: 38px; }
 
   .modal-item-fila { flex-wrap: wrap; }
-  .modal-item-fila .campo-cantidad { width: 100%; }
+  .modal-item-fila .campo-cantidad,
+  .modal-item-fila .campo-flex-1,
+  .modal-item-fila .campo-flex-2 { width: 100%; }
 
   .tickets-grid { grid-template-columns: 1fr; }
 
   .stock-cards-grid { grid-template-columns: 1fr; }
+
+  .reportes-grid { grid-template-columns: 1fr; }
+
+  .tickets-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
 }

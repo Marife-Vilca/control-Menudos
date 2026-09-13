@@ -6,15 +6,19 @@ import { state, inicializarStockProductos, recalcularTodoElStock } from './state
 import { guardarEnLocalStorage, cargarDeLocalStorage } from './storage.js';
 import { inicializarVoz } from './voice.js';
 import { inicializarLectura } from './tts.js';
+import { inicializarNavegacion } from './views.js';
 
 import { renderHeader } from './render/header.js';
 import { renderProductos, configurarCatalogo } from './render/productos.js';
+import { renderPrecios, configurarPrecios } from './render/precios.js';
 import { renderLotes, configurarLotes } from './render/lotes.js';
 import { renderCalidad, configurarCalidad } from './render/calidad.js';
 import { configurarPedidos } from './render/pedidos.js';
 import { renderStock } from './render/stock.js';
 import { renderTickets, configurarTickets } from './render/tickets.js';
 import { configurarModal } from './render/modal.js';
+import { configurarCierreCiclo } from './render/ciclo.js';
+import { renderReportes } from './render/reportes.js';
 
 function actualizarInterfaz() {
   recalcularTodoElStock();
@@ -22,10 +26,12 @@ function actualizarInterfaz() {
 
   renderHeader();
   renderProductos();
+  renderPrecios();
   renderLotes();
   renderCalidad();
   renderStock();
   renderTickets();
+  renderReportes();
 }
 
 function configurarSelectorDia() {
@@ -45,14 +51,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   inicializarVoz();
   inicializarLectura();
+  inicializarNavegacion();
   configurarSelectorDia();
 
   configurarCatalogo(actualizarInterfaz);
+  configurarPrecios(actualizarInterfaz);
   configurarLotes(actualizarInterfaz);
   configurarCalidad(actualizarInterfaz);
   configurarPedidos(actualizarInterfaz);
   configurarTickets(actualizarInterfaz);
   configurarModal(actualizarInterfaz);
+  configurarCierreCiclo(actualizarInterfaz);
 
   actualizarInterfaz();
 });

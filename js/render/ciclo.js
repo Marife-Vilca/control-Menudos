@@ -1,0 +1,37 @@
+// =============================================================
+// COMPONENTE: Cierre / archivado del ciclo activo
+// Se usa cuando termina la venta del día (el ciclo se "mata" el
+// lunes/miércoles/sábado y se vende al día siguiente): al cerrar,
+// todo lo del ciclo pasa al historial y el ciclo activo queda en
+// blanco para poder ingresar el lote del siguiente día de matanza.
+// =============================================================
+import { state, getCicloActual, cerrarCicloActivo } from '../state.js';
+
+const NOMBRES_CICLO = {
+  LUNES_MARTES: "Lunes / Martes",
+  MIERCOLES_JUEVES: "Miércoles / Jueves",
+  VIERNES_SABADO: "Viernes / Sábado",
+  DOMINGO: "Domingo"
+};
+
+export function configurarCierreCiclo(onChange) {
+  const boton = document.getElementById("btn-cerrar-ciclo");
+  if (!boton) return;
+
+  boton.addEventListener("click", () => {
+    const ciclo = getCicloActual();
+    const pendientes = ciclo.pedidos.filter((p) => !p.despachado).length;
+    const nombreCiclo = NOMBRES_CICLO[state.diaActivo] || state.diaActivo;
+
+    let mensaje = `¿Cerrar y archivar el ciclo "${nombreCiclo}"?\n\nEsto reinicia el inventario, los lotes y los tiques para poder ingresar el siguiente lote.`;
+    if (pendientes > 0) {
+      mensaje += `\n\n⚠ Hay ${pendientes} tique(s) SIN despachar. Si cierras ahora, quedarán guardados en el historial tal como están, pero no podrás seguir editándolos.`;
+    }
+
+    if (!confirm(mensaje)) return;
+
+    cerrarCicloActivo();
+    onChange();
+    alert(`Ciclo "${nombreCiclo}" archivado correctamente. Ya puedes ingresar el nuevo lote.`);
+  });
+}

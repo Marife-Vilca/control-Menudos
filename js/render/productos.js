@@ -1,9 +1,10 @@
 // =============================================================
 // COMPONENTE: Catálogo de productos
-// - Alta / edición de productos (nombre + piezas por menudo)
+// - Alta / edición de productos (nombre, piezas por menudo, precio)
 // - Sincroniza todos los <select> de productos de la app
 // =============================================================
 import { state } from '../state.js';
+import { formatearMoneda } from '../utils.js';
 
 let editIndex = null;
 
@@ -33,6 +34,13 @@ function sincronizarSelectsDeProductos() {
   });
 }
 
+function etiquetaPrecio(producto) {
+  if (!producto.precio) return "sin precio";
+  return producto.tipoPrecio === "kilo"
+    ? `${formatearMoneda(producto.precio)}/kg`
+    : `${formatearMoneda(producto.precio)}/u`;
+}
+
 function renderTags() {
   const contenedor = document.getElementById("lista-productos-tags");
   if (!contenedor) return;
@@ -42,7 +50,7 @@ function renderTags() {
     const tag = document.createElement("span");
     tag.className = "tag-item";
     tag.innerHTML = `
-      ${producto.nombre.toUpperCase()} (${producto.rendimiento})
+      ${producto.nombre.toUpperCase()} (${producto.rendimiento}) · ${etiquetaPrecio(producto)}
       <i class="fa-solid fa-pen-to-square"></i>
     `;
     tag.addEventListener("click", () => cargarProductoEnFormulario(index));
@@ -54,18 +62,27 @@ function cargarProductoEnFormulario(index) {
   const producto = state.productos[index];
   if (!producto) return;
 
-  const inputNombre = document.getElementById("nuevo-prod-nombre");
-  const inputRendimiento = document.getElementById("nuevo-prod-rendimiento");
-  const botonGuardar = document.querySelector("#form-nuevo-producto button[type='submit']");
+  document.getElementById("nuevo-prod-nombre").value = producto.nombre;
+  document.getElementById("nuevo-prod-rendimiento").value = producto.rendimiento;
+  document.getElementById("nuevo-prod-tipo-precio").value = producto.tipoPrecio || "unidad";
+  document.getElementById("nuevo-prod-precio").value = producto.precio || 0;
 
-  inputNombre.value = producto.nombre;
-  inputRendimiento.value = producto.rendimiento;
   editIndex = index;
 
+  const botonGuardar = document.querySelector("#form-nuevo-producto button[type='submit']");
   if (botonGuardar) {
     botonGuardar.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> <span id="btn-text">Guardar Cambios</span>`;
   }
-  inputNombre.focus();
+  document.getElementById("nuevo-prod-nombre").focus();
+}
+
+function restaurarFormulario(form) {
+  form.reset();
+  document.getElementById("nuevo-prod-rendimiento").value = "1";
+  document.getElementById("nuevo-prod-precio").value = "0";
+  const botonGuardar = form.querySelector("button[type='submit']");
+  botonGuardar.innerHTML = `<i class="fa-solid fa-plus"></i> <span id="btn-text">Añadir al Catálogo</span>`;
+  editIndex = null;
 }
 
 export function renderProductos() {
@@ -79,53 +96,34 @@ export function configurarCatalogo(onChange) {
   form.addEventListener("submit", (evento) => {
     evento.preventDefault();
 
-    const inputNombre = document.getElementById("nuevo-prod-nombre");
-    const inputRendimiento = document.getElementById("nuevo-prod-rendimiento");
-    const botonGuardar = form.querySelector("button[type='submit']");
-
-    const nombreProducto = inputNombre.value.trim().toLowerCase();
-    const rendimiento = parseInt(inputRendimiento.value, 10) || 1;
+    const nombreProducto = document.getElementById("nuevo-prod-nombre").value.trim().toLowerCase();
+    const rendimiento = parseInt(document.getElementById("nuevo-prod-rendimiento").value, 10) || 1;
+    const tipoPrecio = document.getElementById("nuevo-prod-tipo-precio").value === "kilo" ? "kilo" : "unidad";
+    const precio = parseFloat(document.getElementById("nuevo-prod-precio").value) || 0;
 
     if (!nombreProducto) return;
 
     if (editIndex !== null) {
-      const nombreAnterior = state.productos[editIndex].nombre;
       const yaExiste = state.productos.some((p, idx) => p.nombre === nombreProducto && idx !== editIndex);
-
       if (yaExiste) {
         alert("Ya existe otro producto con ese nombre.");
         return;
       }
-
-      state.productos[editIndex] = { nombre: nombreProducto, rendimiento };
-
-      Object.keys(state.ciclos).forEach((diaKey) => {
-        const ciclo = state.ciclos[diaKey];
-        if (ciclo.stock[nombreAnterior]) {
-          ciclo.stock[nombreProducto] = ciclo.stock[nombreAnterior];
-          if (nombreAnterior !== nombreProducto) delete ciclo.stock[nombreAnterior];
-        }
-      });
-
-      editIndex = null;
+      state.productos[editIndex] = { nombre: nombreProducto, rendimiento, tipoPrecio, precio };
     } else {
       const yaExiste = state.productos.some((p) => p.nombre === nombreProducto);
       if (yaExiste) {
         alert("El producto ya existe en el catálogo.");
         return;
       }
-
-      state.productos.push({ nombre: nombreProducto, rendimiento });
-
-      Object.keys(state.ciclos).forEach((diaKey) => {
-        state.ciclos[diaKey].stock[nombreProducto] = { vaca: 0, toro: 0 };
-      });
+      state.productos.push({ nombre: nombreProducto, rendimiento, tipoPrecio, precio });
     }
 
-    inputNombre.value = "";
-    inputRendimiento.value = "1";
-    botonGuardar.innerHTML = `<i class="fa-solid fa-plus"></i> <span id="btn-text">Añadir al Catálogo</span>`;
-
+    restaurarFormulario(form);
     onChange();
+  });
+
+  document.getElementById("btn-cancelar-edicion-prod")?.addEventListener("click", () => {
+    restaurarFormulario(form);
   });
 }

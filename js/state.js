@@ -1,6 +1,7 @@
 // =============================================================
 // ESTADO GLOBAL DE LA APLICACIÓN Y ESTRUCTURA POR DÍAS/CICLOS
 // =============================================================
+import { generarId, normalizarNombre } from './utils.js';
 
 function crearCicloVacio() {
   return {
@@ -8,7 +9,6 @@ function crearCicloVacio() {
     totalMenudosToro: 0,
     stock: {},
     pedidos: [],
-    entregados: [],
     lotesHistorico: [],
     calidadHistorico: []
   };
@@ -18,29 +18,39 @@ export const state = {
   diaActivo: "LUNES_MARTES", // LUNES_MARTES | MIERCOLES_JUEVES | VIERNES_SABADO | DOMINGO
   ticketCounter: 1,
   productos: [
-    { nombre: "higado", rendimiento: 1 },
-    { nombre: "bofe", rendimiento: 1 },
-    { nombre: "mondongo", rendimiento: 1 },
-    { nombre: "pata", rendimiento: 4 },
-    { nombre: "corazon", rendimiento: 1 }
+    { nombre: "higado", rendimiento: 1, tipoPrecio: "unidad", precio: 0 },
+    { nombre: "bofe", rendimiento: 1, tipoPrecio: "unidad", precio: 0 },
+    { nombre: "mondongo", rendimiento: 1, tipoPrecio: "kilo", precio: 0 },
+    { nombre: "pata", rendimiento: 4, tipoPrecio: "unidad", precio: 0 },
+    { nombre: "corazon", rendimiento: 1, tipoPrecio: "unidad", precio: 0 }
   ],
   ciclos: {
     LUNES_MARTES: crearCicloVacio(),
     MIERCOLES_JUEVES: crearCicloVacio(),
     VIERNES_SABADO: crearCicloVacio(),
     DOMINGO: crearCicloVacio()
-  }
+  },
+  // Catálogo de clientes (caseras) con precios especiales por producto.
+  // Persiste siempre, no se borra al cerrar/reiniciar un ciclo.
+  // clave = nombre normalizado (minúsculas, sin espacios extra)
+  clientes: {},
+  // Ciclos ya cerrados/archivados (ver cerrarCicloActivo). No se pierden al reiniciar.
+  historial: []
 };
 
-// Helper para obtener la referencia directa del ciclo activo
+// ---------------------------------------------------------------
+// Ciclo activo
+// ---------------------------------------------------------------
+
 export function getCicloActual() {
   if (!state.ciclos[state.diaActivo]) {
     state.ciclos[state.diaActivo] = crearCicloVacio();
   }
-  if (!state.ciclos[state.diaActivo].calidadHistorico) {
-    state.ciclos[state.diaActivo].calidadHistorico = [];
-  }
-  return state.ciclos[state.diaActivo];
+  const ciclo = state.ciclos[state.diaActivo];
+  if (!ciclo.calidadHistorico) ciclo.calidadHistorico = [];
+  if (!ciclo.lotesHistorico) ciclo.lotesHistorico = [];
+  if (!ciclo.pedidos) ciclo.pedidos = [];
+  return ciclo;
 }
 
 export function inicializarStockProductos() {
@@ -98,4 +108,103 @@ export function recalcularTodoElStock() {
       });
     });
   });
+}
+
+// ---------------------------------------------------------------
+// Precios: base por producto + precios especiales por casera
+// ---------------------------------------------------------------
+
+function getOrCrearCliente(nombreCasera) {
+  const clave = normalizarNombre(nombreCasera);
+  if (!clave) return null;
+  if (!state.clientes[clave]) {
+    state.clientes[clave] = { nombre: nombreCasera.trim(), precios: {} };
+  }
+  return state.clientes[clave];
+}
+
+/** Devuelve el precio a cobrar: el especial de la casera si existe, si no el precio base del producto. */
+export function getPrecioProducto(nombreCasera, nombreProducto) {
+  const producto = state.productos.find((p) => p.nombre === nombreProducto);
+  const base = producto ? Number(producto.precio) || 0 : 0;
+
+  const clave = normalizarNombre(nombreCasera);
+  const cliente = clave ? state.clientes[clave] : null;
+  if (cliente && cliente.precios && cliente.precios[nombreProducto] !== undefined) {
+    return Number(cliente.precios[nombreProducto]) || 0;
+  }
+  return base;
+}
+
+export function tienePrecioEspecial(nombreCasera, nombreProducto) {
+  const clave = normalizarNombre(nombreCasera);
+  const cliente = clave ? state.clientes[clave] : null;
+  return !!(cliente && cliente.precios && cliente.precios[nombreProducto] !== undefined);
+}
+
+export function setPrecioEspecial(nombreCasera, nombreProducto, precio) {
+  const cliente = getOrCrearCliente(nombreCasera);
+  if (!cliente) return;
+  cliente.precios[nombreProducto] = Number(precio) || 0;
+}
+
+export function eliminarPrecioEspecial(nombreCasera, nombreProducto) {
+  const clave = normalizarNombre(nombreCasera);
+  const cliente = state.clientes[clave];
+  if (cliente && cliente.precios) delete cliente.precios[nombreProducto];
+}
+
+// ---------------------------------------------------------------
+// Cierre / archivado de ciclo
+// ---------------------------------------------------------------
+
+function calcularTotalesCiclo(ciclo) {
+  let ingresoTotal = 0;
+  ciclo.pedidos.forEach((pedido) => {
+    if (!pedido.despachado) return;
+    pedido.items.forEach((item) => {
+      ingresoTotal += Number(item.subtotal) || 0;
+    });
+  });
+
+  const costoTotal = (ciclo.lotesHistorico || []).reduce(
+    (suma, lote) => suma + (Number(lote.costoTotal) || 0),
+    0
+  );
+
+  return { ingresoTotal, costoTotal, ganancia: ingresoTotal - costoTotal };
+}
+
+export function resumenCicloEnVivo() {
+  const ciclo = getCicloActual();
+  return { ...calcularTotalesCiclo(ciclo), pedidos: ciclo.pedidos };
+}
+
+/**
+ * Archiva el ciclo activo en el historial (para reportes) y lo reinicia
+ * en blanco para poder recibir el lote del siguiente día de matanza.
+ * Los precios especiales por casera NO se ven afectados: viven en
+ * state.clientes, fuera del ciclo.
+ */
+export function cerrarCicloActivo() {
+  const ciclo = getCicloActual();
+  const totales = calcularTotalesCiclo(ciclo);
+
+  state.historial.push({
+    id: generarId(),
+    diaTipo: state.diaActivo,
+    fechaCierre: new Date().toISOString(),
+    totalMenudosVaca: ciclo.totalMenudosVaca,
+    totalMenudosToro: ciclo.totalMenudosToro,
+    lotesHistorico: ciclo.lotesHistorico,
+    calidadHistorico: ciclo.calidadHistorico,
+    pedidos: ciclo.pedidos,
+    ...totales
+  });
+
+  const cicloNuevo = crearCicloVacio();
+  state.productos.forEach((p) => {
+    cicloNuevo.stock[p.nombre] = { vaca: 0, toro: 0 };
+  });
+  state.ciclos[state.diaActivo] = cicloNuevo;
 }

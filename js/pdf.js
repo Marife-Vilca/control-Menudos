@@ -2,12 +2,15 @@
 // EXPORTACIÓN A PDF (usa jsPDF + jspdf-autotable cargados en index.html)
 // =============================================================
 import { state, getCicloActual } from './state.js';
+import { formatearMoneda } from './utils.js';
+
+function totalTicket(ticket) {
+  return ticket.items.reduce((suma, item) => suma + (Number(item.subtotal) || 0), 0);
+}
 
 export function descargarTicketPDF(ticketId) {
   const ciclo = getCicloActual();
-  const ticket =
-    ciclo.pedidos.find((t) => t.id === ticketId) ||
-    ciclo.entregados.find((t) => t.id === ticketId);
+  const ticket = ciclo.pedidos.find((t) => t.id === ticketId);
 
   if (!ticket) {
     alert("Ticket no encontrado.");
@@ -36,14 +39,15 @@ export function descargarTicketPDF(ticketId) {
   doc.text(`CASERA: ${ticket.casera.toUpperCase()}`, 5, 34);
 
   const tableData = ticket.items.map((it) => [
-    it.cant.toString(),
+    it.peso ? `${it.peso} kg` : it.cant.toString(),
     it.prod.toUpperCase(),
-    it.tipo.toUpperCase()
+    it.tipo.toUpperCase(),
+    formatearMoneda(it.subtotal)
   ]);
 
   doc.autoTable({
     startY: 38,
-    head: [["Cant.", "Producto", "Tipo"]],
+    head: [["Cant.", "Producto", "Tipo", "Subtotal"]],
     body: tableData,
     theme: "plain",
     styles: { fontSize: 8, cellPadding: 1.5 },
@@ -51,7 +55,12 @@ export function descargarTicketPDF(ticketId) {
     margin: { left: 5, right: 5 }
   });
 
-  const finalY = doc.lastAutoTable.finalY + 8;
+  let finalY = doc.lastAutoTable.finalY + 6;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.text(`TOTAL: ${formatearMoneda(totalTicket(ticket))}`, 75, finalY, { align: "right" });
+
+  finalY += 8;
   doc.setFontSize(8);
   doc.setFont("helvetica", "italic");
   doc.text("¡Gracias por su preferencia!", 40, finalY, { align: "center" });
@@ -61,8 +70,9 @@ export function descargarTicketPDF(ticketId) {
 
 export function exportarReporteDiaPDF() {
   const ciclo = getCicloActual();
+  const despachados = ciclo.pedidos.filter((t) => t.despachado);
 
-  if (ciclo.entregados.length === 0) {
+  if (despachados.length === 0) {
     alert(`No hay entregas despachadas en el ciclo actual (${state.diaActivo}) para exportar.`);
     return;
   }
@@ -78,15 +88,19 @@ export function exportarReporteDiaPDF() {
   doc.setFont("helvetica", "normal");
   doc.text(`Día / Ciclo Operativo: ${state.diaActivo}`, 14, 22);
   doc.text(`Fecha de Emisión: ${new Date().toLocaleDateString()}`, 14, 27);
-  doc.text(`Total Tiques Entregados: ${ciclo.entregados.length}`, 14, 32);
+  doc.text(`Total Tiques Entregados: ${despachados.length}`, 14, 32);
 
-  let startY = 38;
+  const ingresoTotal = despachados.reduce((suma, t) => suma + totalTicket(t), 0);
+  doc.text(`Ingreso Total del Ciclo: ${formatearMoneda(ingresoTotal)}`, 14, 37);
 
-  ciclo.entregados.forEach((tique, index) => {
+  let startY = 44;
+
+  despachados.forEach((tique, index) => {
     const tableData = tique.items.map((it) => [
-      it.cant.toString(),
+      it.peso ? `${it.peso} kg` : it.cant.toString(),
       it.prod.toUpperCase(),
-      it.tipo.toUpperCase()
+      it.tipo.toUpperCase(),
+      formatearMoneda(it.subtotal)
     ]);
 
     doc.setFont("helvetica", "bold");
@@ -99,7 +113,7 @@ export function exportarReporteDiaPDF() {
 
     doc.autoTable({
       startY: startY + 2,
-      head: [["Cantidad", "Producto / Pieza", "Origen (Vaca/Toro)"]],
+      head: [["Cantidad", "Producto / Pieza", "Origen (Vaca/Toro)", "Subtotal"]],
       body: tableData,
       theme: "striped",
       styles: { fontSize: 9 },
@@ -109,7 +123,7 @@ export function exportarReporteDiaPDF() {
 
     startY = doc.lastAutoTable.finalY + 8;
 
-    if (startY > 260 && index < ciclo.entregados.length - 1) {
+    if (startY > 260 && index < despachados.length - 1) {
       doc.addPage();
       startY = 15;
     }

@@ -197,3 +197,47 @@ button:active { opacity: 0.9; }
 .btn-auto { width: auto; }
 .btn-sm { padding: 6px 10px; font-size: 0.78rem; margin-top: 6px; }
 .btn-slim { padding: 5px 11px; font-size: 0.78rem; height: auto; line-height: 1.2; }
+
+/* PRECIO Y SUBTOTAL EN FILA DE PEDIDO */
+.pedido-item-row .ped-peso { flex: 0 0 100px; }
+
+.precio-item-info {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0 4px;
+  height: 38px;
+}
+
+.precio-item-unitario {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+.btn-editar-precio-item {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: var(--radius-xs);
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  color: #4338ca;
+  font-size: 0.75rem;
+}
+
+.btn-editar-precio-item:hover { background: #e0e7ff; }
+
+.subtotal-item-linea {
+  flex: 0 0 70px;
+  text-align: right;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--text-main);
+}

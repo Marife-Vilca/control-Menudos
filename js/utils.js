@@ -6,6 +6,16 @@ export function formatearCantidad(num) {
   return Math.floor(num).toString();
 }
 
+export function formatearDecimal(num, decimales = 2) {
+  const n = Number(num) || 0;
+  return n.toFixed(decimales);
+}
+
+export function formatearMoneda(num) {
+  const n = Number(num) || 0;
+  return `S/ ${n.toFixed(2)}`;
+}
+
 export function generarId() {
   return Date.now() + Math.floor(Math.random() * 1000);
 }
@@ -20,6 +30,11 @@ export function horaActual() {
 
 export function fechaActual() {
   return new Date().toLocaleDateString();
+}
+
+/** Normaliza un nombre de persona para usarlo como clave (case/espacios insensible). */
+export function normalizarNombre(nombre) {
+  return (nombre || "").trim().toLowerCase().replace(/\s+/g, " ");
 }
 
 const PALABRAS_A_NUMERO = {
@@ -44,8 +59,8 @@ export function textoANumero(texto) {
   if (!texto) return null;
   const limpio = texto.toLowerCase().trim();
 
-  const soloDigitos = limpio.match(/\d+/);
-  if (soloDigitos) return parseInt(soloDigitos[0], 10);
+  const soloDigitos = limpio.match(/\d+([.,]\d+)?/);
+  if (soloDigitos) return parseFloat(soloDigitos[0].replace(",", "."));
 
   const palabras = limpio
     .normalize("NFC")
@@ -78,4 +93,50 @@ export function textoANumero(texto) {
 
   total += decenaPendiente;
   return encontrado ? total : null;
+}
+
+/**
+ * Genera el bloque HTML reutilizable de un campo con dictado por voz (micrófono)
+ * y lectura en voz alta. Antes este bloque estaba copiado a mano en más de 15
+ * lugares del HTML y del JS; ahora es una única función.
+ *
+ * @param {Object} opciones
+ * @param {string} opciones.tag - "input" (por defecto) — se arma como <input ...>
+ * @param {string} opciones.tipo - tipo de input HTML (text, number, date...)
+ * @param {string} opciones.id - id del input (opcional)
+ * @param {string} opciones.clase - clases CSS del input (opcional)
+ * @param {string} opciones.placeholder
+ * @param {string} opciones.modoVoz - "texto" | "numero" (qué interpreta el dictado)
+ * @param {string} opciones.ariaLabel - texto accesible del botón de dictado
+ * @param {Object} opciones.attrs - atributos extra HTML crudos, ej. 'min="0" required'
+ * @param {string} opciones.valor - value inicial del input
+ */
+export function campoVozHTML({
+  tipo = "text",
+  id = "",
+  clase = "",
+  placeholder = "",
+  modoVoz = "texto",
+  ariaLabel = "Dictar por voz",
+  attrs = "",
+  valor = ""
+} = {}) {
+  const idAttr = id ? `id="${id}"` : "";
+  const claseAttr = clase ? `class="${clase}"` : "";
+  const placeholderAttr = placeholder ? `placeholder="${placeholder}"` : "";
+  const valorAttr = valor !== "" && valor !== null && valor !== undefined ? `value="${valor}"` : "";
+
+  return `
+    <div class="campo-voz">
+      <input type="${tipo}" ${idAttr} ${claseAttr} ${placeholderAttr} ${valorAttr} ${attrs}>
+      <div class="acciones-voz">
+        <button type="button" class="btn-voz" data-modo="${modoVoz}" aria-label="${ariaLabel}">
+          <i class="fa-solid fa-microphone"></i>
+        </button>
+        <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+      </div>
+    </div>
+  `;
 }

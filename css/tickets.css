@@ -203,3 +203,31 @@
 
 .btn-reabrir { background-color: #64748b; color: #fff; }
 .btn-editar-ticket { background-color: #0284c7; color: #fff; }
+
+/* MONTOS DENTRO DEL TIQUE */
+.ticket-item-derecha {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ticket-item-subtotal {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.ticket-total-linea {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  color: #334155;
+  border-top: 1px dashed #cbd5e1;
+}
+
+.ticket-total-linea strong {
+  font-size: 0.95rem;
+  color: #0f172a;
+}

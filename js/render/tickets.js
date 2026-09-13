@@ -2,7 +2,7 @@
 // COMPONENTE: Tablero KDS de tiques del ciclo activo
 // =============================================================
 import { state, getCicloActual } from '../state.js';
-import { formatearCantidad } from '../utils.js';
+import { formatearCantidad, formatearMoneda } from '../utils.js';
 import { descargarTicketPDF, exportarReporteDiaPDF } from '../pdf.js';
 import { leerTexto } from '../tts.js';
 import { abrirModalEditarPedido } from './modal.js';
@@ -18,11 +18,15 @@ function calcularStockSimulado(ciclo) {
   return stockSimulado;
 }
 
+function totalTicket(ticket) {
+  return ticket.items.reduce((suma, item) => suma + (Number(item.subtotal) || 0), 0);
+}
+
 function construirTextoTicket(ticket) {
   const detalleItems = ticket.items
     .map((it) => `${it.cant} ${it.prod} de ${it.tipo}`)
     .join(", ");
-  return `Pedido de ${ticket.casera}. Lleva: ${detalleItems}.`;
+  return `Pedido de ${ticket.casera}. Lleva: ${detalleItems}. Total a cobrar: ${formatearMoneda(totalTicket(ticket))}.`;
 }
 
 function renderItemsTicket(ticket, stockSimulado) {
@@ -45,15 +49,19 @@ function renderItemsTicket(ticket, stockSimulado) {
     }
 
     const claseTipo = item.tipo === "vaca" ? "type-vaca" : "type-toro";
+    const detalleCantidad = item.peso ? `${item.peso} kg` : formatearCantidad(item.cant);
 
     html += `
       <div class="ticket-item">
         <div>
-          <span class="item-qty">${formatearCantidad(item.cant)}</span>
+          <span class="item-qty">${detalleCantidad}</span>
           <span>${item.prod.toUpperCase()}</span>
           <span class="type-tag ${claseTipo}">${item.tipo}</span>
         </div>
-        ${badgeHtml}
+        <div class="ticket-item-derecha">
+          <span class="ticket-item-subtotal">${formatearMoneda(item.subtotal)}</span>
+          ${badgeHtml}
+        </div>
       </div>
     `;
   });
@@ -94,6 +102,10 @@ function renderTicket(ticket, stockSimulado) {
         <div class="ticket-customer"><i class="fa-solid fa-user"></i> ${ticket.casera}</div>
       </div>
       <div class="ticket-body">${itemsHtml}</div>
+      <div class="ticket-total-linea">
+        <span>Total del pedido</span>
+        <strong>${formatearMoneda(totalTicket(ticket))}</strong>
+      </div>
       <div class="ticket-footer">
         <div class="ticket-footer-top">
           ${etiquetaEstado}
@@ -142,7 +154,6 @@ function despacharTicket(ticketId) {
     ticket.despachado = true;
     ticket.fechaDespacho =
       new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    ciclo.entregados.push({ ...ticket });
   }
 }
 
@@ -153,7 +164,6 @@ function reabrirTicket(ticketId) {
   if (ticket && ticket.despachado) {
     ticket.despachado = false;
     delete ticket.fechaDespacho;
-    ciclo.entregados = ciclo.entregados.filter((t) => t.id !== ticketId);
   }
 }
 
@@ -181,9 +191,7 @@ export function configurarTickets(onChange) {
         break;
       case "escuchar-ticket": {
         const ciclo = getCicloActual();
-        const ticket =
-          ciclo.pedidos.find((t) => t.id === ticketId) ||
-          ciclo.entregados.find((t) => t.id === ticketId);
+        const ticket = ciclo.pedidos.find((t) => t.id === ticketId);
         if (ticket) leerTexto(construirTextoTicket(ticket), boton);
         break;
       }

@@ -1,12 +1,15 @@
 // =============================================================
 // COMPONENTE: Pedido de casera (creación de tiques)
+// Resuelve el precio a cobrar por casera+producto (precio especial
+// si existe, si no el precio base del catálogo) y calcula el
+// subtotal de cada línea y el total del pedido en tiempo real.
 // =============================================================
-import { state, getCicloActual } from '../state.js';
-import { horaActual, fechaActual } from '../utils.js';
+import { state, getCicloActual, getPrecioProducto, setPrecioEspecial } from '../state.js';
+import { horaActual, fechaActual, hoyISO, formatearMoneda, campoVozHTML } from '../utils.js';
 
 function construirOpcionesProducto() {
   return state.productos
-    .map((p) => `<option value="${p.nombre}">${p.nombre.toUpperCase()}</option>`)
+    .map((p) => `<option value="${p.nombre}" data-tipo-precio="${p.tipoPrecio}">${p.nombre.toUpperCase()}</option>`)
     .join("");
 }
 
@@ -18,17 +21,19 @@ function filaPedidoHTML() {
         <option value="vaca">Vaca</option>
         <option value="toro">Toro</option>
       </select>
-      <div class="campo-voz">
-        <input type="number" class="ped-cant-entera" min="1" step="1" value="1" placeholder="Cant." required>
-        <div class="acciones-voz">
-                            <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar cantidad por voz">
-          <i class="fa-solid fa-microphone"></i>
+      ${campoVozHTML({
+        tipo: "number", clase: "ped-cant-entera", placeholder: "Cant.",
+        attrs: 'min="1" step="1" required', valor: 1, modoVoz: "numero",
+        ariaLabel: "Dictar cantidad por voz"
+      })}
+      <input type="number" class="ped-peso" min="0.1" step="0.1" placeholder="Peso (kg)" style="display:none">
+      <div class="precio-item-info">
+        <span class="precio-item-unitario">S/ 0.00</span>
+        <button type="button" class="btn-editar-precio-item" title="Cambiar precio para esta casera">
+          <i class="fa-solid fa-pen"></i>
         </button>
-                            <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
-                                <i class="fa-solid fa-volume-high"></i>
-                            </button>
-                        </div>
       </div>
+      <span class="subtotal-item-linea">S/ 0.00</span>
       <button type="button" class="btn-remove-row" data-action="quitar-fila-pedido">
         <i class="fa-solid fa-trash-can"></i>
       </button>
@@ -36,25 +41,114 @@ function filaPedidoHTML() {
   `;
 }
 
+function getCaseraActual() {
+  return document.getElementById("casera-nombre").value.trim();
+}
+
+function actualizarFila(fila) {
+  const prod = fila.querySelector(".ped-prod").value;
+  const productoInfo = state.productos.find((p) => p.nombre === prod);
+  const esKilo = productoInfo && productoInfo.tipoPrecio === "kilo";
+
+  const inputCantidad = fila.querySelector(".ped-cant-entera");
+  const inputPeso = fila.querySelector(".ped-peso");
+  inputPeso.style.display = esKilo ? "block" : "none";
+  inputPeso.required = esKilo;
+
+  const casera = getCaseraActual();
+  const precioUnitario = getPrecioProducto(casera, prod);
+  const cant = parseFloat(inputCantidad.value) || 0;
+  const peso = esKilo ? (parseFloat(inputPeso.value) || 0) : null;
+  const subtotal = esKilo ? precioUnitario * peso : precioUnitario * cant;
+
+  fila.dataset.precioUnitario = precioUnitario;
+  fila.dataset.subtotal = subtotal;
+
+  const unidad = esKilo ? "/kg" : "/u";
+  fila.querySelector(".precio-item-unitario").textContent = `${formatearMoneda(precioUnitario)}${unidad}`;
+  fila.querySelector(".subtotal-item-linea").textContent = formatearMoneda(subtotal);
+
+  actualizarTotalPedido();
+}
+
+function actualizarTodasLasFilas() {
+  document.querySelectorAll(".pedido-item-row").forEach(actualizarFila);
+}
+
+function actualizarTotalPedido() {
+  const totalSpan = document.getElementById("pedido-total-preview");
+  if (!totalSpan) return;
+  let total = 0;
+  document.querySelectorAll(".pedido-item-row").forEach((fila) => {
+    total += parseFloat(fila.dataset.subtotal) || 0;
+  });
+  totalSpan.textContent = formatearMoneda(total);
+}
+
 export function agregarFilaPedido() {
   const contenedor = document.getElementById("pedido-items-container");
-  if (contenedor) contenedor.insertAdjacentHTML("beforeend", filaPedidoHTML());
+  if (!contenedor) return;
+  contenedor.insertAdjacentHTML("beforeend", filaPedidoHTML());
+  actualizarFila(contenedor.lastElementChild);
+}
+
+function pedirPrecioEspecial(fila) {
+  const casera = getCaseraActual();
+  if (!casera) {
+    alert("Escriba primero el nombre de la casera.");
+    return;
+  }
+
+  const prod = fila.querySelector(".ped-prod").value;
+  const precioActual = fila.dataset.precioUnitario || 0;
+  const nuevoPrecio = prompt(`Nuevo precio para "${casera}" en ${prod.toUpperCase()}:`, precioActual);
+  if (nuevoPrecio === null) return;
+
+  const valor = parseFloat(nuevoPrecio);
+  if (isNaN(valor) || valor <= 0) {
+    alert("Ingrese un precio válido mayor a 0.");
+    return;
+  }
+
+  setPrecioEspecial(casera, prod, valor);
+  actualizarFila(fila);
 }
 
 export function configurarPedidos(onChange) {
   const contenedorFilas = document.getElementById("pedido-items-container");
   const form = document.getElementById("form-pedido");
+  const inputCasera = document.getElementById("casera-nombre");
 
   document.getElementById("btn-add-pedido-row").addEventListener("click", () => {
     agregarFilaPedido();
   });
 
+  inputCasera.addEventListener("input", actualizarTodasLasFilas);
+
   contenedorFilas.addEventListener("click", (evento) => {
-    const boton = evento.target.closest('[data-action="quitar-fila-pedido"]');
-    if (!boton) return;
-    if (document.querySelectorAll(".pedido-item-row").length > 1) {
-      boton.closest(".pedido-item-row").remove();
+    const botonQuitar = evento.target.closest('[data-action="quitar-fila-pedido"]');
+    if (botonQuitar) {
+      if (document.querySelectorAll(".pedido-item-row").length > 1) {
+        botonQuitar.closest(".pedido-item-row").remove();
+        actualizarTotalPedido();
+      }
+      return;
     }
+
+    const botonPrecio = evento.target.closest(".btn-editar-precio-item");
+    if (botonPrecio) {
+      pedirPrecioEspecial(botonPrecio.closest(".pedido-item-row"));
+    }
+  });
+
+  contenedorFilas.addEventListener("input", (evento) => {
+    const fila = evento.target.closest(".pedido-item-row");
+    if (fila) actualizarFila(fila);
+  });
+
+  contenedorFilas.addEventListener("change", (evento) => {
+    const fila = evento.target.closest(".pedido-item-row");
+    if (fila) actualizarFila(fila);
   });
 
   form.addEventListener("submit", (evento) => {
@@ -66,14 +160,24 @@ export function configurarPedidos(onChange) {
     }
 
     const ciclo = getCicloActual();
-    const casera = document.getElementById("casera-nombre").value;
-    const items = [];
+    const casera = inputCasera.value.trim();
+    if (!casera) {
+      alert("Ingrese el nombre de la casera.");
+      return;
+    }
 
+    const items = [];
     document.querySelectorAll(".pedido-item-row").forEach((fila) => {
       const prod = fila.querySelector(".ped-prod").value;
       const tipo = fila.querySelector(".ped-tipo").value;
       const cant = parseInt(fila.querySelector(".ped-cant-entera").value, 10) || 0;
-      if (cant > 0) items.push({ prod, tipo, cant });
+      const productoInfo = state.productos.find((p) => p.nombre === prod);
+      const esKilo = productoInfo && productoInfo.tipoPrecio === "kilo";
+      const peso = esKilo ? (parseFloat(fila.querySelector(".ped-peso").value) || 0) : null;
+      const precioUnitario = parseFloat(fila.dataset.precioUnitario) || 0;
+      const subtotal = parseFloat(fila.dataset.subtotal) || 0;
+
+      if (cant > 0) items.push({ prod, tipo, cant, peso, precioUnitario, subtotal });
     });
 
     if (items.length === 0) {
@@ -86,6 +190,7 @@ export function configurarPedidos(onChange) {
       casera,
       hora: horaActual(),
       fecha: fechaActual(),
+      fechaISO: hoyISO(),
       items,
       despachado: false
     });

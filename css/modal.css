@@ -128,3 +128,18 @@
 
 .btn-cancelar-modal { background: #94a3b8; color: #fff; }
 .btn-guardar-modal { background: #0284c7; color: #fff; }
+
+/* PRECIO Y SUBTOTAL DENTRO DEL MODAL DE EDICIÓN */
+.campo-peso-modal input { text-align: center; }
+
+.modal-item-fila .precio-item-info {
+  height: 36px;
+}
+
+.modal-item-fila .subtotal-item-linea {
+  flex: 0 0 64px;
+  text-align: right;
+  font-weight: 800;
+  font-size: 0.82rem;
+  align-self: center;
+}
