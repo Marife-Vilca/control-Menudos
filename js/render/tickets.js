@@ -1,21 +1,12 @@
-// =============================================================
-// COMPONENTE: Tablero KDS de tiques del ciclo activo
-// =============================================================
-import { state, getCicloActual } from '../state.js';
+
+import { state, getCicloActual, getStockBaseCiclo } from '../state.js';
 import { formatearCantidad, formatearMoneda } from '../utils.js';
 import { descargarTicketPDF, exportarReporteDiaPDF } from '../pdf.js';
 import { leerTexto } from '../tts.js';
 import { abrirModalEditarPedido } from './modal.js';
 
 function calcularStockSimulado(ciclo) {
-  const stockSimulado = {};
-  state.productos.forEach((p) => {
-    stockSimulado[p.nombre] = {
-      vaca: ciclo.stock[p.nombre] ? ciclo.stock[p.nombre].vaca : 0,
-      toro: ciclo.stock[p.nombre] ? ciclo.stock[p.nombre].toro : 0
-    };
-  });
-  return stockSimulado;
+  return getStockBaseCiclo(ciclo);
 }
 
 function totalTicket(ticket) {

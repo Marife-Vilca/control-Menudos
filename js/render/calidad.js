@@ -1,6 +1,4 @@
-// =============================================================
-// COMPONENTE: Control de calidad / mermas
-// =============================================================
+
 import { getCicloActual } from '../state.js';
 import { generarId, fechaActual, formatearCantidad } from '../utils.js';
 

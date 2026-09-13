@@ -1,11 +1,8 @@
-/* Tablets y pantallas medianas (≤ 1024px) */
+
 @media (max-width: 1024px) {
   .app-contenido { padding: 14px; }
 }
 
-/* Smartphones en orientación vertical (≤ 640px) — la app está pensada
-   primero para este tamaño; el resto de reglas amplían para pantallas
-   más grandes. */
 @media (max-width: 640px) {
   .topbar-titulo { font-size: 0.85rem; }
 
@@ -48,7 +45,7 @@
   .subtotal-item-linea { text-align: left; }
 
   input, select {
-    font-size: 16px; /* Evita el zoom automático de iOS en inputs */
+    font-size: 16px; 
     padding: 8px 6px;
   }
 

@@ -1,9 +1,4 @@
-// =============================================================
-// COMPONENTE: Reportes — ganancia y ranking de caseras
-// Usa el historial de ciclos cerrados (fecha de cierre confiable,
-// generada por el sistema) para agrupar por período, más el ciclo
-// activo en curso (aún no cerrado) como resumen aparte.
-// =============================================================
+
 import { state, resumenCicloEnVivo } from '../state.js';
 import { formatearMoneda } from '../utils.js';
 

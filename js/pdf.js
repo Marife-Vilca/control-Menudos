@@ -1,6 +1,4 @@
-// =============================================================
-// EXPORTACIÓN A PDF (usa jsPDF + jspdf-autotable cargados en index.html)
-// =============================================================
+
 import { state, getCicloActual } from './state.js';
 import { formatearMoneda } from './utils.js';
 

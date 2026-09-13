@@ -1,10 +1,4 @@
-// =============================================================
-// COMPONENTE: Cierre / archivado del ciclo activo
-// Se usa cuando termina la venta del día (el ciclo se "mata" el
-// lunes/miércoles/sábado y se vende al día siguiente): al cerrar,
-// todo lo del ciclo pasa al historial y el ciclo activo queda en
-// blanco para poder ingresar el lote del siguiente día de matanza.
-// =============================================================
+
 import { state, getCicloActual, cerrarCicloActivo } from '../state.js';
 
 const NOMBRES_CICLO = {

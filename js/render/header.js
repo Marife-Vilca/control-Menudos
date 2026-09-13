@@ -1,6 +1,4 @@
-// =============================================================
-// COMPONENTE: Encabezado (stats de vaca/toro/pedidos pendientes/por cobrar)
-// =============================================================
+
 import { getCicloActual } from '../state.js';
 import { formatearMoneda } from '../utils.js';
 

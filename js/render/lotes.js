@@ -1,6 +1,4 @@
-// =============================================================
-// COMPONENTE: Ingreso de lotes (recepción) e historial del ciclo
-// =============================================================
+
 import { state, getCicloActual } from '../state.js';
 import { generarId, campoVozHTML } from '../utils.js';
 

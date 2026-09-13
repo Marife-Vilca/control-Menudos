@@ -1,6 +1,4 @@
-// =============================================================
-// COMPONENTE: Modal de edición de pedidos
-// =============================================================
+
 import { state, getCicloActual, getPrecioProducto, setPrecioEspecial } from '../state.js';
 import { formatearMoneda, campoVozHTML } from '../utils.js';
 

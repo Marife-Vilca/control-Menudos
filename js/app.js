@@ -1,7 +1,4 @@
-// =============================================================
-// APP.JS — Punto de entrada y raíz de composición
-// Conecta el estado con cada componente de la interfaz.
-// =============================================================
+
 import { state, inicializarStockProductos, recalcularTodoElStock } from './state.js';
 import { guardarEnLocalStorage, cargarDeLocalStorage } from './storage.js';
 import { inicializarVoz } from './voice.js';

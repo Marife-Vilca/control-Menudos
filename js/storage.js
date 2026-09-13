@@ -1,6 +1,4 @@
-// =============================================================
-// PERSISTENCIA EN LOCALSTORAGE
-// =============================================================
+
 import { state } from './state.js';
 
 const CLAVE_ESTADO = "mifrufely_state_v4";
@@ -11,7 +9,6 @@ export function guardarEnLocalStorage() {
   localStorage.setItem(CLAVE_ESTADO, JSON.stringify(state));
 }
 
-/** Rellena campos nuevos en datos guardados con una versión anterior de la app. */
 function migrarEstado(parsedState) {
   if (!parsedState.productos) parsedState.productos = [];
   parsedState.productos.forEach((p) => {
@@ -36,8 +33,6 @@ function migrarEstado(parsedState) {
       });
     });
 
-    // La versión anterior guardaba los despachados duplicados en "entregados";
-    // ya no se usa (ahora se filtra pedidos.despachado), se descarta si existe.
     delete ciclo.entregados;
   });
 
@@ -62,7 +57,6 @@ export function cargarDeLocalStorage() {
     }
   }
 
-  // Compatibilidad con versiones antiguas que guardaban el contador aparte
   if (state.ticketCounter === undefined) {
     const counterGuardado = localStorage.getItem(CLAVE_CONTADOR_LEGACY);
     state.ticketCounter = counterGuardado ? (parseInt(counterGuardado, 10) || 1) : 1;

@@ -1,9 +1,3 @@
-// =============================================================
-// NAVEGACIÓN: menú hamburguesa + cambio de vistas (SPA simple)
-// La app se usa principalmente desde el celular: al abrir, se ve
-// solo la vista "Inicio" (inventario + pedido + tablero de tiques).
-// El resto de secciones vive detrás del menú hamburguesa.
-// =============================================================
 
 const VISTA_POR_DEFECTO = "inicio";
 

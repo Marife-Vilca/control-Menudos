@@ -1,9 +1,4 @@
-// =============================================================
-// COMPONENTE: Pedido de casera (creación de tiques)
-// Resuelve el precio a cobrar por casera+producto (precio especial
-// si existe, si no el precio base del catálogo) y calcula el
-// subtotal de cada línea y el total del pedido en tiempo real.
-// =============================================================
+
 import { state, getCicloActual, getPrecioProducto, setPrecioEspecial } from '../state.js';
 import { horaActual, fechaActual, hoyISO, formatearMoneda, campoVozHTML } from '../utils.js';
 
@@ -45,7 +40,6 @@ function getCaseraActual() {
   return document.getElementById("casera-nombre").value.trim();
 }
 
-/** Cantidad ya pedida en OTRAS filas del formulario para el mismo producto+tipo (evita que dos filas del mismo pedido se pisen entre sí). */
 function totalReservadoEnFormulario(prod, tipo, filaExcluir) {
   let total = 0;
   document.querySelectorAll(".pedido-item-row").forEach((fila) => {
@@ -57,7 +51,6 @@ function totalReservadoEnFormulario(prod, tipo, filaExcluir) {
   return total;
 }
 
-/** Revisa que haya stock suficiente para TODOS los productos del pedido antes de crearlo. */
 function validarStockDisponible(items) {
   const ciclo = getCicloActual();
   const requerido = {};

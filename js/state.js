@@ -1,6 +1,4 @@
-// =============================================================
-// ESTADO GLOBAL DE LA APLICACIÓN Y ESTRUCTURA POR DÍAS/CICLOS
-// =============================================================
+
 import { generarId, normalizarNombre } from './utils.js';
 
 function crearCicloVacio() {
@@ -15,7 +13,7 @@ function crearCicloVacio() {
 }
 
 export const state = {
-  diaActivo: "LUNES_MARTES", // LUNES_MARTES | MIERCOLES_JUEVES | VIERNES_SABADO | DOMINGO
+  diaActivo: "LUNES_MARTES", 
   ticketCounter: 1,
   productos: [
     { nombre: "higado", rendimiento: 1, tipoPrecio: "unidad", precio: 0 },
@@ -30,17 +28,11 @@ export const state = {
     VIERNES_SABADO: crearCicloVacio(),
     DOMINGO: crearCicloVacio()
   },
-  // Catálogo de clientes (caseras) con precios especiales por producto.
-  // Persiste siempre, no se borra al cerrar/reiniciar un ciclo.
-  // clave = nombre normalizado (minúsculas, sin espacios extra)
+
   clientes: {},
-  // Ciclos ya cerrados/archivados (ver cerrarCicloActivo). No se pierden al reiniciar.
+  
   historial: []
 };
-
-// ---------------------------------------------------------------
-// Ciclo activo
-// ---------------------------------------------------------------
 
 export function getCicloActual() {
   if (!state.ciclos[state.diaActivo]) {
@@ -66,40 +58,48 @@ export function inicializarStockProductos() {
   });
 }
 
+function calcularStockBase(ciclo) {
+  const stockBase = {};
+  state.productos.forEach((p) => {
+    stockBase[p.nombre] = { vaca: 0, toro: 0 };
+  });
+
+  let sumVaca = 0;
+  let sumToro = 0;
+
+  (ciclo.lotesHistorico || []).forEach((lote) => {
+    sumVaca += lote.cantVaca || 0;
+    sumToro += lote.cantToro || 0;
+
+    state.productos.forEach((p) => {
+      stockBase[p.nombre].vaca += (lote.cantVaca || 0) * p.rendimiento;
+      stockBase[p.nombre].toro += (lote.cantToro || 0) * p.rendimiento;
+    });
+  });
+
+  (ciclo.calidadHistorico || []).forEach((reg) => {
+    if (stockBase[reg.prod] && stockBase[reg.prod][reg.tipo] !== undefined) {
+      stockBase[reg.prod][reg.tipo] = Math.max(0, stockBase[reg.prod][reg.tipo] - reg.cant);
+    }
+  });
+
+  return { stockBase, sumVaca, sumToro };
+}
+
+export function getStockBaseCiclo(ciclo) {
+  return calcularStockBase(ciclo).stockBase;
+}
+
 export function recalcularTodoElStock() {
   Object.keys(state.ciclos).forEach((diaKey) => {
     const ciclo = state.ciclos[diaKey];
-
-    let sumVaca = 0;
-    let sumToro = 0;
-
-    ciclo.stock = {};
-    state.productos.forEach((p) => {
-      ciclo.stock[p.nombre] = { vaca: 0, toro: 0 };
-    });
-
-    // 1. Sumar ingresos por lotes
-    (ciclo.lotesHistorico || []).forEach((lote) => {
-      sumVaca += lote.cantVaca || 0;
-      sumToro += lote.cantToro || 0;
-
-      state.productos.forEach((p) => {
-        ciclo.stock[p.nombre].vaca += (lote.cantVaca || 0) * p.rendimiento;
-        ciclo.stock[p.nombre].toro += (lote.cantToro || 0) * p.rendimiento;
-      });
-    });
+    const { stockBase, sumVaca, sumToro } = calcularStockBase(ciclo);
 
     ciclo.totalMenudosVaca = sumVaca;
     ciclo.totalMenudosToro = sumToro;
 
-    // 2. Descontar mermas de calidad
-    (ciclo.calidadHistorico || []).forEach((reg) => {
-      if (ciclo.stock[reg.prod] && ciclo.stock[reg.prod][reg.tipo] !== undefined) {
-        ciclo.stock[reg.prod][reg.tipo] = Math.max(0, ciclo.stock[reg.prod][reg.tipo] - reg.cant);
-      }
-    });
 
-    // 3. Descontar todos los pedidos (creados y despachados)
+    ciclo.stock = JSON.parse(JSON.stringify(stockBase));
     (ciclo.pedidos || []).forEach((p) => {
       p.items.forEach((it) => {
         if (ciclo.stock[it.prod] && ciclo.stock[it.prod][it.tipo] !== undefined) {
@@ -110,10 +110,6 @@ export function recalcularTodoElStock() {
   });
 }
 
-// ---------------------------------------------------------------
-// Precios: base por producto + precios especiales por casera
-// ---------------------------------------------------------------
-
 function getOrCrearCliente(nombreCasera) {
   const clave = normalizarNombre(nombreCasera);
   if (!clave) return null;
@@ -123,7 +119,6 @@ function getOrCrearCliente(nombreCasera) {
   return state.clientes[clave];
 }
 
-/** Devuelve el precio a cobrar: el especial de la casera si existe, si no el precio base del producto. */
 export function getPrecioProducto(nombreCasera, nombreProducto) {
   const producto = state.productos.find((p) => p.nombre === nombreProducto);
   const base = producto ? Number(producto.precio) || 0 : 0;
@@ -154,10 +149,6 @@ export function eliminarPrecioEspecial(nombreCasera, nombreProducto) {
   if (cliente && cliente.precios) delete cliente.precios[nombreProducto];
 }
 
-// ---------------------------------------------------------------
-// Cierre / archivado de ciclo
-// ---------------------------------------------------------------
-
 function calcularTotalesCiclo(ciclo) {
   let ingresoTotal = 0;
   ciclo.pedidos.forEach((pedido) => {
@@ -175,12 +166,6 @@ export function resumenCicloEnVivo() {
   return { ...calcularTotalesCiclo(ciclo), pedidos: ciclo.pedidos };
 }
 
-/**
- * Archiva el ciclo activo en el historial (para reportes) y lo reinicia
- * en blanco para poder recibir el lote del siguiente día de matanza.
- * Los precios especiales por casera NO se ven afectados: viven en
- * state.clientes, fuera del ciclo.
- */
 export function cerrarCicloActivo() {
   const ciclo = getCicloActual();
   const totales = calcularTotalesCiclo(ciclo);

@@ -1,19 +1,4 @@
-// =============================================================
-// COMPONENTE DE VOZ: permite dictar números y texto por micrófono
-// Pensado para personas con baja visión que se confunden al
-// escribir manualmente números o letras.
-//
-// Marcado esperado en el HTML:
-//   <div class="campo-voz">
-//     <input type="text" ...>
-//     <button type="button" class="btn-voz" data-modo="texto" aria-label="Dictar por voz">
-//       <i class="fa-solid fa-microphone"></i>
-//     </button>
-//   </div>
-//
-// data-modo="numero"  -> interpreta lo dictado como una cantidad
-// data-modo="texto"   -> coloca el texto dictado tal cual
-// =============================================================
+
 import { textoANumero } from './utils.js';
 
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -88,11 +73,6 @@ function manejarClicBotonVoz(boton) {
   iniciarReconocimiento(input, modo, boton);
 }
 
-/**
- * Inicializa el dictado por voz para toda la aplicación.
- * Usa delegación de eventos: funciona también con botones .btn-voz
- * que se agreguen dinámicamente después (filas de lote, pedido, modal, etc).
- */
 export function inicializarVoz() {
   if (!soportaReconocimientoVoz()) {
     document.body.classList.add("voz-no-disponible");

@@ -1,18 +1,8 @@
-// =============================================================
-// COMPONENTE DE LECTURA EN VOZ ALTA (Text-to-Speech)
-// Permite escuchar lo escrito en un campo, o un texto armado
-// a partir de datos (ej. el resumen de un tique).
-// Pensado para personas con baja visión.
-// =============================================================
 
 export function soportaLecturaVoz() {
   return "speechSynthesis" in window;
 }
 
-/**
- * Lee un texto en voz alta. Si se pasa un botón, le agrega la
- * clase "leyendo" mientras dura la lectura (para dar feedback visual).
- */
 export function leerTexto(texto, boton = null) {
   if (!soportaLecturaVoz() || !texto) return;
 
@@ -45,13 +35,6 @@ function manejarClicBotonLeer(boton) {
   leerTexto(texto, boton);
 }
 
-/**
- * Inicializa la lectura en voz alta para toda la app.
- * Usa delegación de eventos: funciona también con botones .btn-leer
- * que se agreguen dinámicamente después (filas de lote, pedido, modal).
- * Los botones "Escuchar Pedido" de los tiques se manejan aparte
- * (en render/tickets.js) porque leen datos, no un input.
- */
 export function inicializarLectura() {
   if (!soportaLecturaVoz()) {
     document.body.classList.add("lectura-no-disponible");

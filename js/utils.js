@@ -1,6 +1,3 @@
-// =============================================================
-// UTILS: helpers puros reutilizados por el resto de módulos
-// =============================================================
 
 export function formatearCantidad(num) {
   return Math.floor(num).toString();
@@ -32,7 +29,6 @@ export function fechaActual() {
   return new Date().toLocaleDateString();
 }
 
-/** Normaliza un nombre de persona para usarlo como clave (case/espacios insensible). */
 export function normalizarNombre(nombre) {
   return (nombre || "").trim().toLowerCase().replace(/\s+/g, " ");
 }
@@ -50,11 +46,6 @@ const PALABRAS_A_NUMERO = {
   cien: 100, ciento: 100
 };
 
-/**
- * Convierte un texto hablado en español a un número entero.
- * Soporta dígitos directos ("20") y números en palabras ("veinte", "treinta y cinco").
- * Retorna null si no logra interpretar ningún número.
- */
 export function textoANumero(texto) {
   if (!texto) return null;
   const limpio = texto.toLowerCase().trim();
@@ -95,22 +86,6 @@ export function textoANumero(texto) {
   return encontrado ? total : null;
 }
 
-/**
- * Genera el bloque HTML reutilizable de un campo con dictado por voz (micrófono)
- * y lectura en voz alta. Antes este bloque estaba copiado a mano en más de 15
- * lugares del HTML y del JS; ahora es una única función.
- *
- * @param {Object} opciones
- * @param {string} opciones.tag - "input" (por defecto) — se arma como <input ...>
- * @param {string} opciones.tipo - tipo de input HTML (text, number, date...)
- * @param {string} opciones.id - id del input (opcional)
- * @param {string} opciones.clase - clases CSS del input (opcional)
- * @param {string} opciones.placeholder
- * @param {string} opciones.modoVoz - "texto" | "numero" (qué interpreta el dictado)
- * @param {string} opciones.ariaLabel - texto accesible del botón de dictado
- * @param {Object} opciones.attrs - atributos extra HTML crudos, ej. 'min="0" required'
- * @param {string} opciones.valor - value inicial del input
- */
 export function campoVozHTML({
   tipo = "text",
   id = "",

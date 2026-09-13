@@ -1,9 +1,4 @@
-// =============================================================
-// COMPONENTE: Precios especiales por casera
-// Catálogo permanente (no se borra al cerrar/reiniciar un ciclo).
-// La mayoría de caseras pagan el precio base del producto; esto
-// solo guarda las excepciones puntuales.
-// =============================================================
+
 import { state, setPrecioEspecial, eliminarPrecioEspecial } from '../state.js';
 import { formatearMoneda } from '../utils.js';
 

@@ -204,7 +204,6 @@
 .btn-reabrir { background-color: #64748b; color: #fff; }
 .btn-editar-ticket { background-color: #0284c7; color: #fff; }
 
-/* MONTOS DENTRO DEL TIQUE */
 .ticket-item-derecha {
   display: flex;
   align-items: center;

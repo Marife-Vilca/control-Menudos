@@ -1,8 +1,4 @@
-// =============================================================
-// COMPONENTE: Catálogo de productos
-// - Alta / edición de productos (nombre, piezas por menudo, precio)
-// - Sincroniza todos los <select> de productos de la app
-// =============================================================
+
 import { state } from '../state.js';
 import { formatearMoneda } from '../utils.js';
 
@@ -17,7 +13,6 @@ function construirOpciones(productoSeleccionado) {
     .join("");
 }
 
-/** Actualiza todos los selects que dependen del catálogo (calidad, filas de pedido, modal). */
 function sincronizarSelectsDeProductos() {
   const selectCalidad = document.getElementById("calidad-producto");
   if (selectCalidad) {

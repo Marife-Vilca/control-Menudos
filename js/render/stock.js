@@ -1,6 +1,4 @@
-// =============================================================
-// COMPONENTE: Inventario disponible del día/ciclo activo
-// =============================================================
+
 import { state, getCicloActual } from '../state.js';
 import { formatearCantidad } from '../utils.js';
 

@@ -23,7 +23,6 @@
 
 <body>
 
-    <!-- OVERLAY Y MENÚ HAMBURGUESA -->
     <div id="nav-overlay" class="nav-overlay"></div>
 
     <nav id="nav-drawer" class="nav-drawer">
@@ -58,7 +57,6 @@
 
     <div class="app-shell">
 
-        <!-- BARRA SUPERIOR -->
         <header class="topbar">
             <button id="btn-abrir-menu" class="btn-icono-nav" aria-label="Abrir menú">
                 <i class="fa-solid fa-bars"></i>
@@ -100,9 +98,6 @@
 
         <main id="app-contenido" class="app-contenido">
 
-            <!-- ============================================================= -->
-            <!-- VISTA: INICIO (Inventario + Pedido + Tablero de Tiques)       -->
-            <!-- ============================================================= -->
             <section class="vista vista-activa vista-inicio" data-vista="inicio">
 
                 <div class="inicio-grid">
@@ -183,9 +178,6 @@
                 </div>
             </section>
 
-            <!-- ============================================================= -->
-            <!-- VISTA: CATÁLOGO Y PRECIOS                                      -->
-            <!-- ============================================================= -->
             <section class="vista" data-vista="catalogo">
 
                 <section class="panel-card">
@@ -308,9 +300,6 @@
                 </section>
             </section>
 
-            <!-- ============================================================= -->
-            <!-- VISTA: INGRESO DE LOTE                                         -->
-            <!-- ============================================================= -->
             <section class="vista" data-vista="lote">
                 <section class="panel-card">
                     <div class="panel-header">
@@ -419,9 +408,6 @@
                 </section>
             </section>
 
-            <!-- ============================================================= -->
-            <!-- VISTA: CALIDAD / MERMAS                                        -->
-            <!-- ============================================================= -->
             <section class="vista" data-vista="calidad">
                 <section class="panel-card">
                     <div class="panel-header">
@@ -481,9 +467,6 @@
                 </section>
             </section>
 
-            <!-- ============================================================= -->
-            <!-- VISTA: REPORTES                                                -->
-            <!-- ============================================================= -->
             <section class="vista" data-vista="reportes">
                 <div id="reportes-grid" class="reportes-grid"></div>
             </section>
@@ -491,7 +474,6 @@
         </main>
     </div>
 
-    <!-- COMPONENTE: MODAL DE EDICIÓN DE PEDIDO -->
     <div id="modal-editar-pedido" class="modal-overlay">
         <div class="modal-box">
             <h3><i class="fa-solid fa-pen-to-square"></i> Editar Pedido</h3>
@@ -530,7 +512,6 @@
         </div>
     </div>
 
-    <!-- Librerías para generación de PDF en el frontend -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
