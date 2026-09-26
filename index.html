@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="css/modal.css">
     <link rel="stylesheet" href="css/voice.css">
     <link rel="stylesheet" href="css/reportes.css">
+    <link rel="stylesheet" href="css/ventadia.css">
     <link rel="stylesheet" href="css/responsive.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -51,6 +52,9 @@
             </button>
             <button class="nav-link" data-vista="reportes">
                 <i class="fa-solid fa-chart-line"></i> Reportes
+            </button>
+            <button class="nav-link" data-vista="ventadia">
+                <i class="fa-solid fa-cash-register"></i> Venta del Día
             </button>
         </div>
     </nav>
@@ -471,6 +475,230 @@
                 <div id="reportes-grid" class="reportes-grid"></div>
             </section>
 
+            <section class="vista" data-vista="ventadia">
+
+                <div class="subvista-tabs">
+                    <button type="button" class="subvista-tab subvista-tab-activo" data-subvista="ventas">
+                        <i class="fa-solid fa-hand-holding-dollar"></i> Ventas
+                    </button>
+                    <button type="button" class="subvista-tab" data-subvista="compras">
+                        <i class="fa-solid fa-truck-fast"></i> Compras a Proveedores
+                    </button>
+                </div>
+
+                <!-- SUBVISTA: VENTAS -->
+                <div class="subvista-panel subvista-panel-activo" data-subvista="ventas">
+                    <div class="inicio-grid">
+                        <div class="inicio-columna-izquierda">
+                            <section class="panel-card">
+                                <div class="panel-header">
+                                    <i class="fa-solid fa-cash-register"></i>
+                                    <h2>Nueva Venta del Día</h2>
+                                </div>
+
+                                <form id="form-venta-dia">
+                                    <div class="form-group">
+                                        <label for="venta-casera-nombre">Nombre de la Casera / Cliente:</label>
+                                        <div class="campo-voz">
+                                            <input type="text" id="venta-casera-nombre" placeholder="Nombre de la casera" required />
+                                            <div class="acciones-voz">
+                                                <button type="button" class="btn-voz" data-modo="texto" aria-label="Dictar nombre por voz">
+                                                    <i class="fa-solid fa-microphone"></i>
+                                                </button>
+                                                <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                                    <i class="fa-solid fa-volume-high"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Detalle de la Venta:</label>
+                                        <div id="venta-items-container"></div>
+                                        <button type="button" class="btn-secondary btn-sm" id="btn-add-venta-row">
+                                            <i class="fa-solid fa-plus"></i> Agregar Producto
+                                        </button>
+                                    </div>
+
+                                    <div class="form-row-2">
+                                        <div class="form-group">
+                                            <label for="venta-pasaje">Pasaje (S/):</label>
+                                            <div class="campo-voz">
+                                                <input type="number" id="venta-pasaje" min="0" step="0.10" value="0">
+                                                <div class="acciones-voz">
+                                                    <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar pasaje por voz">
+                                                        <i class="fa-solid fa-microphone"></i>
+                                                    </button>
+                                                    <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                                        <i class="fa-solid fa-volume-high"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="venta-deuda-anterior">Deuda Anterior (S/):</label>
+                                            <div class="campo-voz">
+                                                <input type="number" id="venta-deuda-anterior" min="0" step="0.10" value="0">
+                                                <div class="acciones-voz">
+                                                    <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar deuda anterior por voz">
+                                                        <i class="fa-solid fa-microphone"></i>
+                                                    </button>
+                                                    <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                                        <i class="fa-solid fa-volume-high"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <small class="help-text" id="venta-deuda-sugerida"></small>
+                                        </div>
+                                    </div>
+
+                                    <div class="total-preview-linea">
+                                        <span>Total de la cuenta</span>
+                                        <strong id="venta-total-preview">S/ 0.00</strong>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="venta-monto-pagado">Monto Pagado Ahora (S/):</label>
+                                        <div class="campo-voz">
+                                            <input type="number" id="venta-monto-pagado" min="0" step="0.10" value="0">
+                                            <div class="acciones-voz">
+                                                <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar monto pagado por voz">
+                                                    <i class="fa-solid fa-microphone"></i>
+                                                </button>
+                                                <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                                    <i class="fa-solid fa-volume-high"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <small class="help-text">Deja en 0 si no paga nada aún, o menos del total si deja "a cuenta".</small>
+                                    </div>
+
+                                    <div class="total-preview-linea saldo-preview-linea">
+                                        <span>Queda a cuenta</span>
+                                        <strong id="venta-saldo-preview">S/ 0.00</strong>
+                                    </div>
+
+                                    <button type="submit" class="btn-primary">
+                                        <i class="fa-solid fa-receipt"></i> Generar Tique de Venta
+                                    </button>
+                                </form>
+                            </section>
+                        </div>
+
+                        <div class="inicio-columna-derecha">
+                            <div class="tickets-container-wrapper">
+                                <div class="tickets-header">
+                                    <h2><i class="fa-solid fa-receipt"></i> Tablero de Ventas del Día</h2>
+                                    <div class="tickets-actions">
+                                        <button type="button" class="btn-secondary btn-sm" id="btn-abrir-deudores">
+                                            <i class="fa-solid fa-user-clock"></i> Deudores
+                                        </button>
+                                        <button type="button" class="btn-secondary btn-sm" id="btn-cerrar-venta-dia">
+                                            <i class="fa-solid fa-box-archive"></i> Cerrar Día
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="legend">
+                                    <span class="badge-dot dot-ok"></span> Pagado
+                                    <span class="badge-dot dot-danger"></span> Queda a cuenta
+                                </div>
+                                <div class="tickets-grid" id="venta-tickets-grid"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBVISTA: COMPRAS A PROVEEDORES -->
+                <div class="subvista-panel" data-subvista="compras">
+                    <div class="inicio-grid">
+                        <div class="inicio-columna-izquierda">
+                            <section class="panel-card">
+                                <div class="panel-header">
+                                    <i class="fa-solid fa-truck-fast"></i>
+                                    <h2>Nueva Compra a Proveedor</h2>
+                                </div>
+
+                                <form id="form-compra-proveedor">
+                                    <div class="form-group">
+                                        <label for="compra-proveedor-nombre">Nombre del Proveedor:</label>
+                                        <div class="campo-voz">
+                                            <input type="text" id="compra-proveedor-nombre" placeholder="Nombre del proveedor" required />
+                                            <div class="acciones-voz">
+                                                <button type="button" class="btn-voz" data-modo="texto" aria-label="Dictar nombre por voz">
+                                                    <i class="fa-solid fa-microphone"></i>
+                                                </button>
+                                                <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                                    <i class="fa-solid fa-volume-high"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Detalle de la Compra:</label>
+                                        <div id="compra-items-container"></div>
+                                        <button type="button" class="btn-secondary btn-sm" id="btn-add-compra-row">
+                                            <i class="fa-solid fa-plus"></i> Agregar Producto
+                                        </button>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="compra-adelanto">Adelanto Entregado (S/):</label>
+                                        <div class="campo-voz">
+                                            <input type="number" id="compra-adelanto" min="0" step="0.10" value="0">
+                                            <div class="acciones-voz">
+                                                <button type="button" class="btn-voz" data-modo="numero" aria-label="Dictar adelanto por voz">
+                                                    <i class="fa-solid fa-microphone"></i>
+                                                </button>
+                                                <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                                    <i class="fa-solid fa-volume-high"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="total-preview-linea">
+                                        <span>Total de la compra</span>
+                                        <strong id="compra-total-preview">S/ 0.00</strong>
+                                    </div>
+
+                                    <div class="total-preview-linea saldo-preview-linea">
+                                        <span>Saldo por pagar</span>
+                                        <strong id="compra-saldo-preview">S/ 0.00</strong>
+                                    </div>
+
+                                    <button type="submit" class="btn-primary">
+                                        <i class="fa-solid fa-cart-shopping"></i> Registrar Compra
+                                    </button>
+                                </form>
+                            </section>
+                        </div>
+
+                        <div class="inicio-columna-derecha">
+                            <div class="tickets-container-wrapper">
+                                <div class="tickets-header">
+                                    <h2><i class="fa-solid fa-clipboard-list"></i> Compras del Día</h2>
+                                    <div class="tickets-actions">
+                                        <button type="button" class="btn-secondary btn-sm" id="btn-abrir-proveedores">
+                                            <i class="fa-solid fa-people-carry-box"></i> Cuentas Proveedores
+                                        </button>
+                                        <button type="button" class="btn-secondary btn-sm" id="btn-cerrar-compras-dia">
+                                            <i class="fa-solid fa-box-archive"></i> Cerrar Día
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="legend">
+                                    <span class="badge-dot dot-ok"></span> Pagado
+                                    <span class="badge-dot dot-danger"></span> Saldo pendiente
+                                </div>
+                                <div class="tickets-grid" id="compra-tickets-grid"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
         </main>
     </div>
 
@@ -508,6 +736,26 @@
             <div class="modal-footer">
                 <button type="button" id="btn-cancelar-modal" class="btn-cancelar-modal">Cancelar</button>
                 <button type="button" id="btn-guardar-modal" class="btn-guardar-modal">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-deudores" class="modal-overlay">
+        <div class="modal-box modal-box-ancho">
+            <h3><i class="fa-solid fa-user-clock"></i> Deudores (Caseras que deben)</h3>
+            <div id="deudores-lista" class="deudores-lista"></div>
+            <div class="modal-footer">
+                <button type="button" id="btn-cerrar-modal-deudores" class="btn-cancelar-modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-proveedores" class="modal-overlay">
+        <div class="modal-box modal-box-ancho">
+            <h3><i class="fa-solid fa-people-carry-box"></i> Cuentas de Proveedores</h3>
+            <div id="proveedores-lista" class="deudores-lista"></div>
+            <div class="modal-footer">
+                <button type="button" id="btn-cerrar-modal-proveedores" class="btn-cancelar-modal">Cerrar</button>
             </div>
         </div>
     </div>

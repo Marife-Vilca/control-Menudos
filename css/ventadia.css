@@ -1,0 +1,125 @@
+.subvista-tabs {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.subvista-tab {
+  width: auto;
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 10px 2px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.subvista-tab:hover { color: var(--text-main); }
+
+.subvista-tab-activo {
+  color: var(--accent-blue);
+  border-bottom-color: var(--accent-blue);
+}
+
+.subvista-panel { display: none; }
+.subvista-panel-activo { display: block; }
+
+.venta-item-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.venta-item-row .vd-prod { flex: 2 1 150px; }
+.venta-item-row .vd-modo { flex: 1 1 120px; }
+.venta-item-row .campo-voz { flex: 0 0 170px; }
+.venta-item-row .btn-remove-row { flex: 0 0 38px; }
+
+.compra-item-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.compra-item-row .cp-prod { flex: 2 1 150px; }
+.compra-item-row .campo-voz { flex: 1 1 160px; }
+.compra-item-row .btn-remove-row { flex: 0 0 38px; }
+
+.saldo-preview-linea {
+  background: var(--bg-card-alt);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  margin-bottom: 12px;
+}
+
+.saldo-preview-linea strong.saldo-pendiente {
+  color: var(--accent-red);
+}
+
+.modal-box-ancho { max-width: 640px; }
+
+.deudores-lista {
+  max-height: 55vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.deudor-card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.deudor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--bg-card-alt);
+  font-weight: 700;
+}
+
+.deudor-nombre {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: capitalize;
+}
+
+.deudor-saldo { color: var(--accent-red); }
+
+.deudor-tiques { padding: 8px 12px; }
+
+.deudor-tique-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 0.82rem;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.deudor-tique-fila:last-child { border-bottom: none; }
+
+.deudor-tique-acciones {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.deudor-tique-acciones button {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+}

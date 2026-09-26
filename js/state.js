@@ -1,5 +1,5 @@
 
-import { generarId, normalizarNombre } from './utils.js';
+import { generarId, normalizarNombre, hoyISO } from './utils.js';
 
 function crearCicloVacio() {
   return {
@@ -30,8 +30,18 @@ export const state = {
   },
 
   clientes: {},
-  
-  historial: []
+
+  historial: [],
+
+  // --- VENTA DEL DÍA (mayoreo día a día, independiente del stock/lotes) ---
+  ventaDelDia: { fecha: hoyISO(), tiques: [] },
+  historialVentaDia: [],
+  ticketCounterVenta: 1,
+
+  // --- COMPRAS A PROVEEDORES (cuando faltan menudos, independiente del stock/lotes) ---
+  comprasProveedores: { fecha: hoyISO(), compras: [] },
+  historialCompras: [],
+  ticketCounterCompra: 1
 };
 
 export function getCicloActual() {

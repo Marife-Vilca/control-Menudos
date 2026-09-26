@@ -16,6 +16,8 @@ import { renderTickets, configurarTickets } from './render/tickets.js';
 import { configurarModal } from './render/modal.js';
 import { configurarCierreCiclo } from './render/ciclo.js';
 import { renderReportes } from './render/reportes.js';
+import { renderVentaDelDia, renderDeudoresModal, configurarVentaDia } from './render/ventaDia.js';
+import { renderCompras, renderProveedoresModal, configurarCompras } from './render/comprasProveedores.js';
 
 function actualizarInterfaz() {
   recalcularTodoElStock();
@@ -29,6 +31,11 @@ function actualizarInterfaz() {
   renderStock();
   renderTickets();
   renderReportes();
+
+  renderVentaDelDia();
+  renderDeudoresModal();
+  renderCompras();
+  renderProveedoresModal();
 }
 
 function configurarSelectorDia() {
@@ -59,6 +66,8 @@ document.addEventListener("DOMContentLoaded", () => {
   configurarTickets(actualizarInterfaz);
   configurarModal(actualizarInterfaz);
   configurarCierreCiclo(actualizarInterfaz);
+  configurarVentaDia(actualizarInterfaz);
+  configurarCompras(actualizarInterfaz);
 
   actualizarInterfaz();
 });

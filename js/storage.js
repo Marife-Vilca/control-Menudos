@@ -19,6 +19,15 @@ function migrarEstado(parsedState) {
   if (!parsedState.clientes) parsedState.clientes = {};
   if (!parsedState.historial) parsedState.historial = [];
 
+  const hoy = new Date().toISOString().split("T")[0];
+  if (!parsedState.ventaDelDia) parsedState.ventaDelDia = { fecha: hoy, tiques: [] };
+  if (!parsedState.historialVentaDia) parsedState.historialVentaDia = [];
+  if (parsedState.ticketCounterVenta === undefined) parsedState.ticketCounterVenta = 1;
+
+  if (!parsedState.comprasProveedores) parsedState.comprasProveedores = { fecha: hoy, compras: [] };
+  if (!parsedState.historialCompras) parsedState.historialCompras = [];
+  if (parsedState.ticketCounterCompra === undefined) parsedState.ticketCounterCompra = 1;
+
   Object.values(parsedState.ciclos || {}).forEach((ciclo) => {
     if (!ciclo.lotesHistorico) ciclo.lotesHistorico = [];
 
