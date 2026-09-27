@@ -11,7 +11,7 @@ import {
   getDeudores,
   buscarTiqueVentaPorId
 } from '../ventaDia.js';
-import { descargarTiqueVentaPDF } from '../pdfVentaDia.js';
+import { descargarTiqueVentaPDF, compartirTiqueVentaPDF, descargarEstadoCuentaPDF } from '../pdfVentaDia.js';
 import { leerTexto } from '../tts.js';
 
 export function activarSubvista(nombre) {
@@ -29,10 +29,6 @@ function abrirModal(idModal) {
 
 function cerrarModal(idModal) {
   document.getElementById(idModal).classList.remove("abierto");
-}
-
-function compartirPorWhatsApp(texto) {
-  window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank");
 }
 
 function construirOpcionesProducto() {
@@ -300,7 +296,7 @@ function renderVentaTiqueCard(tique) {
         <div class="ticket-footer-secundario">
           ${tique.saldoACuenta > 0 ? `<button class="btn-secondary btn-sm" data-action="pagar-venta" data-id="${tique.id}"><i class="fa-solid fa-hand-holding-dollar"></i> Pago</button>` : ""}
           <button class="btn-secondary btn-sm" data-action="pdf-venta" data-id="${tique.id}"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-          <button class="btn-secondary btn-sm" data-action="whatsapp-venta" data-id="${tique.id}"><i class="fa-brands fa-whatsapp"></i></button>
+          <button class="btn-secondary btn-sm" data-action="whatsapp-venta" data-id="${tique.id}" title="Enviar PDF por WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>
           <button class="btn-secondary btn-sm btn-escuchar-ticket" data-action="escuchar-venta" data-id="${tique.id}"><i class="fa-solid fa-volume-high"></i></button>
           <button class="btn-secondary btn-sm" data-action="eliminar-venta" data-id="${tique.id}"><i class="fa-solid fa-trash-can"></i></button>
         </div>
@@ -357,13 +353,17 @@ export function renderDeudoresModal() {
                   <button class="btn-secondary btn-sm" data-action="pagar-venta" data-id="${t.id}" title="Registrar pago">
                     <i class="fa-solid fa-hand-holding-dollar"></i>
                   </button>
-                  <button class="btn-secondary btn-sm" data-action="pdf-venta" data-id="${t.id}" title="Descargar PDF">
+                  <button class="btn-secondary btn-sm" data-action="pdf-venta" data-id="${t.id}" title="Descargar PDF de este tique">
                     <i class="fa-solid fa-file-pdf"></i>
                   </button>
                 </div>
               </div>`
             )
             .join("")}
+          ${d.tiques.length > 1 ? `
+          <button class="btn-secondary btn-sm btn-estado-cuenta" data-action="estado-cuenta" data-nombre="${d.nombre}">
+            <i class="fa-solid fa-file-invoice"></i> Estado de Cuenta (${d.tiques.length} tiques)
+          </button>` : ""}
         </div>
       </div>`
     )
@@ -373,6 +373,12 @@ export function renderDeudoresModal() {
 function manejarAccionVenta(evento, onChange) {
   const boton = evento.target.closest("[data-action]");
   if (!boton) return;
+
+  if (boton.dataset.action === "estado-cuenta") {
+    descargarEstadoCuentaPDF(boton.dataset.nombre);
+    return;
+  }
+
   const id = Number(boton.dataset.id);
 
   switch (boton.dataset.action) {
@@ -396,11 +402,9 @@ function manejarAccionVenta(evento, onChange) {
     case "pdf-venta":
       descargarTiqueVentaPDF(id);
       break;
-    case "whatsapp-venta": {
-      const tique = buscarTiqueVentaPorId(id);
-      if (tique) compartirPorWhatsApp(construirTextoVentaTique(tique));
+    case "whatsapp-venta":
+      compartirTiqueVentaPDF(id);
       break;
-    }
     case "escuchar-venta": {
       const tique = buscarTiqueVentaPorId(id);
       if (tique) leerTexto(construirTextoVentaTique(tique), boton);

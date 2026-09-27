@@ -1,3 +1,4 @@
+/* PESTAÑAS VENTAS / COMPRAS */
 .subvista-tabs {
   display: flex;
   gap: 16px;
@@ -27,6 +28,7 @@
 .subvista-panel { display: none; }
 .subvista-panel-activo { display: block; }
 
+/* FILAS DE ITEM: VENTA DEL DÍA */
 .venta-item-row {
   display: flex;
   flex-wrap: wrap;
@@ -40,6 +42,7 @@
 .venta-item-row .campo-voz { flex: 0 0 170px; }
 .venta-item-row .btn-remove-row { flex: 0 0 38px; }
 
+/* FILAS DE ITEM: COMPRAS A PROVEEDORES */
 .compra-item-row {
   display: flex;
   flex-wrap: wrap;
@@ -52,6 +55,7 @@
 .compra-item-row .campo-voz { flex: 1 1 160px; }
 .compra-item-row .btn-remove-row { flex: 0 0 38px; }
 
+/* SALDO DESTACADO EN LOS FORMULARIOS */
 .saldo-preview-linea {
   background: var(--bg-card-alt);
   border-radius: var(--radius-sm);
@@ -63,6 +67,7 @@
   color: var(--accent-red);
 }
 
+/* MODALES ANCHOS: DEUDORES Y PROVEEDORES */
 .modal-box-ancho { max-width: 640px; }
 
 .deudores-lista {
@@ -122,4 +127,10 @@
   width: 30px;
   height: 30px;
   padding: 0;
+}
+
+.btn-estado-cuenta {
+  width: 100%;
+  margin-top: 6px;
+  font-size: 0.78rem;
 }
