@@ -760,6 +760,70 @@
         </div>
     </div>
 
+    <div id="modal-editar-venta" class="modal-overlay">
+        <div class="modal-box modal-box-ancho">
+            <h3><i class="fa-solid fa-pen"></i> Editar Venta</h3>
+
+            <form id="form-editar-venta">
+                <div class="form-group">
+                    <label for="edit-venta-casera-nombre">Nombre de la Casera / Cliente:</label>
+                    <div class="campo-voz">
+                        <input type="text" id="edit-venta-casera-nombre" placeholder="Nombre de la casera" required />
+                        <div class="acciones-voz">
+                            <button type="button" class="btn-voz" data-modo="texto" aria-label="Dictar nombre por voz">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                            <button type="button" class="btn-leer" aria-label="Escuchar lo escrito">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Detalle de la Venta:</label>
+                    <div id="edit-venta-items-container"></div>
+                    <button type="button" class="btn-secondary btn-sm" id="btn-add-edit-venta-row">
+                        <i class="fa-solid fa-plus"></i> Agregar Producto
+                    </button>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="edit-venta-pasaje">Pasaje (S/):</label>
+                        <input type="number" id="edit-venta-pasaje" min="0" step="0.10" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-venta-deuda-anterior">Deuda Anterior (S/):</label>
+                        <input type="number" id="edit-venta-deuda-anterior" min="0" step="0.10" value="0">
+                    </div>
+                </div>
+
+                <div class="total-preview-linea">
+                    <span>Total de la cuenta</span>
+                    <strong id="edit-venta-total-preview">S/ 0.00</strong>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-venta-monto-pagado">Monto Pagado (S/):</label>
+                    <input type="number" id="edit-venta-monto-pagado" min="0" step="0.10" value="0">
+                </div>
+
+                <div class="total-preview-linea saldo-preview-linea">
+                    <span>Queda a cuenta</span>
+                    <strong id="edit-venta-saldo-preview">S/ 0.00</strong>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="btn-cancelar-edicion-venta" class="btn-cancelar-modal">Cancelar</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 

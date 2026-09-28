@@ -67,11 +67,10 @@
     justify-content: space-between;
   }
 
-  .venta-item-row .vd-prod,
-  .venta-item-row .vd-modo,
-  .venta-item-row .campo-voz,
-  .venta-item-row .precio-item-info,
-  .venta-item-row .subtotal-item-linea,
+  .venta-item-row-principal .vd-prod,
+  .venta-item-row-principal .vd-modo,
+  .venta-item-row-principal .campo-voz,
+  .venta-item-row-principal .precio-item-info,
   .compra-item-row .cp-prod,
   .compra-item-row .campo-voz,
   .compra-item-row .subtotal-item-linea {

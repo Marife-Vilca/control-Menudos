@@ -30,17 +30,42 @@
 
 /* FILAS DE ITEM: VENTA DEL DÍA */
 .venta-item-row {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.venta-item-row:last-child {
+  border-bottom: none;
+}
+
+.venta-item-row-principal {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 8px;
-  align-items: center;
+  margin-bottom: 4px;
 }
 
-.venta-item-row .vd-prod { flex: 2 1 150px; }
-.venta-item-row .vd-modo { flex: 1 1 120px; }
-.venta-item-row .campo-voz { flex: 0 0 170px; }
-.venta-item-row .btn-remove-row { flex: 0 0 38px; }
+.venta-item-row-principal .vd-prod { flex: 2 1 150px; }
+.venta-item-row-principal .vd-modo { flex: 1 1 120px; }
+.venta-item-row-principal .campo-voz { flex: 0 0 170px; }
+
+.venta-item-row-final {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+.venta-item-row-final .subtotal-item-linea {
+  font-weight: 700;
+}
+
+.venta-item-row-final .btn-remove-row {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+}
 
 /* FILAS DE ITEM: COMPRAS A PROVEEDORES */
 .compra-item-row {

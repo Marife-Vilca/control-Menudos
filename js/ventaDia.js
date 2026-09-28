@@ -61,7 +61,9 @@ export function crearTiqueVenta({ casera, items, pasaje, deudaAnterior, deudaAnt
 
   ventaDelDia.tiques.push(tique);
 
- (deudaAnteriorOrigenIds || []).forEach((idOrigen) => {
+  // La deuda anterior incluida en este tique reemplaza a los tiques viejos
+  // que la originaron, para no arrastrar el mismo saldo dos veces.
+  (deudaAnteriorOrigenIds || []).forEach((idOrigen) => {
     const origen = buscarTiqueVentaPorId(idOrigen);
     if (origen) {
       origen.resuelto = true;
@@ -79,6 +81,24 @@ export function registrarPagoVenta(tiqueId, monto) {
   const abono = Number(monto) || 0;
   tique.montoPagado = Math.min(tique.totalCuenta, tique.montoPagado + abono);
   tique.saldoACuenta = Math.max(0, tique.totalCuenta - tique.montoPagado);
+  tique.resuelto = tique.saldoACuenta === 0;
+}
+
+export function actualizarTiqueVenta(tiqueId, { casera, items, pasaje, deudaAnterior, montoPagado }) {
+  const tique = buscarTiqueVentaPorId(tiqueId);
+  if (!tique) return;
+
+  const totalItems = items.reduce((suma, item) => suma + (Number(item.subtotal) || 0), 0);
+  const totalCuenta = totalItems + (Number(pasaje) || 0) + (Number(deudaAnterior) || 0);
+  const pagado = Math.min(Number(montoPagado) || 0, totalCuenta);
+
+  tique.casera = casera.trim();
+  tique.items = items;
+  tique.pasaje = Number(pasaje) || 0;
+  tique.deudaAnterior = Number(deudaAnterior) || 0;
+  tique.totalCuenta = totalCuenta;
+  tique.montoPagado = pagado;
+  tique.saldoACuenta = Math.max(0, totalCuenta - pagado);
   tique.resuelto = tique.saldoACuenta === 0;
 }
 

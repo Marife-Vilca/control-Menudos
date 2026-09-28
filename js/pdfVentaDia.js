@@ -7,6 +7,8 @@ import { MANROPE_REGULAR_BASE64, MANROPE_BOLD_BASE64 } from './fonts/manrope-pdf
 const COLOR_FUERTE = [45, 45, 48];
 const COLOR_SUAVE = [120, 120, 125];
 const COLOR_LINEA = [225, 225, 228];
+const COLOR_OK = [50, 130, 90];
+const COLOR_MAL = [180, 60, 55];
 
 let fuenteRegistrada = false;
 
@@ -65,51 +67,55 @@ function dibujarTiqueVenta(doc, tique) {
     y += 6;
   });
 
-  if (tique.pasaje > 0) {
-    doc.setTextColor(...COLOR_SUAVE);
-    doc.text("Pasaje", 5, y);
-    doc.text(formatearMoneda(tique.pasaje), 75, y, { align: "right" });
-    doc.setTextColor(...COLOR_FUERTE);
-    y += 6;
-  }
-
   y += 1;
   lineaSuave(doc, y);
   y += 7;
 
-  if (tique.deudaAnterior > 0) {
-    fuente(doc, "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(...COLOR_SUAVE);
-    doc.text("Deuda anterior", 5, y);
-    doc.text(formatearMoneda(tique.deudaAnterior), 75, y, { align: "right" });
-    y += 7;
+ const totalItems = tique.items.reduce((suma, item) => suma + (Number(item.subtotal) || 0), 0);
+
+  fuente(doc, "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(...COLOR_SUAVE);
+  doc.text("Subtotal", 5, y);
+  doc.text(formatearMoneda(totalItems), 75, y, { align: "right" });
+  y += 6.5;
+
+  if (tique.pasaje > 0) {
+    doc.text("+ Pasaje", 5, y);
+    doc.text(formatearMoneda(tique.pasaje), 75, y, { align: "right" });
+    y += 6.5;
   }
 
+  if (tique.deudaAnterior > 0) {
+    doc.text("+ Deuda anterior", 5, y);
+    doc.text(formatearMoneda(tique.deudaAnterior), 75, y, { align: "right" });
+    y += 6.5;
+  }
+
+  y += 1;
+  lineaSuave(doc, y);
+  y += 8;
+
   fuente(doc, "bold");
-  doc.setFontSize(11);
+  doc.setFontSize(11.5);
   doc.setTextColor(...COLOR_FUERTE);
   doc.text("TOTAL A PAGAR", 5, y);
   doc.text(formatearMoneda(tique.totalCuenta), 75, y, { align: "right" });
-  y += 8;
+  y += 10;
 
-  fuente(doc, "normal");
-  doc.setFontSize(8.5);
-  doc.setTextColor(...COLOR_SUAVE);
-  doc.text("Pagado", 5, y);
-  doc.text(formatearMoneda(tique.montoPagado), 75, y, { align: "right" });
-  y += 5.5;
-
-  if (tique.saldoACuenta > 0) {
-    fuente(doc, "bold");
-    doc.setFontSize(9);
-    doc.setTextColor(180, 60, 55);
-    doc.text("QUEDA A CUENTA", 5, y);
+  fuente(doc, "bold");
+  doc.setFontSize(9.5);
+  if (tique.saldoACuenta === 0) {
+    doc.setTextColor(...COLOR_OK);
+    doc.text("ESTADO: CANCELADO", 5, y);
+    doc.text(formatearMoneda(tique.montoPagado), 75, y, { align: "right" });
+  } else {
+    doc.setTextColor(...COLOR_MAL);
+    doc.text("ESTADO: FALTA PAGAR", 5, y);
     doc.text(formatearMoneda(tique.saldoACuenta), 75, y, { align: "right" });
-    y += 6;
   }
+  y += 10;
 
-  y += 6;
   fuente(doc, "normal");
   doc.setFontSize(8);
   doc.setTextColor(...COLOR_SUAVE);
@@ -123,7 +129,7 @@ function nombreArchivoTique(tique) {
 }
 
 function calcularAltoTique(tique) {
-  return 90 + tique.items.length * 6;
+  return 98 + tique.items.length * 6;
 }
 
 export function descargarTiqueVentaPDF(tiqueId) {
