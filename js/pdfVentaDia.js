@@ -40,84 +40,70 @@ function lineaSuave(doc, y) {
   doc.line(5, y, 75, y);
 }
 
+function capitalizar(texto) {
+  return texto.toLowerCase().replace(/(^|\s)\S/g, (c) => c.toUpperCase());
+}
+
 function dibujarTiqueVenta(doc, tique) {
-  let y = 12;
+  const ETIQUETA = 55, SIMBOLO = 59, DERECHA = 75;
+  let y = 14;
+
+  const dinero = (monto) => {
+    doc.text("S/", SIMBOLO, y);
+    doc.text(Number(monto).toFixed(2), DERECHA, y, { align: "right" });
+  };
+  const filaTotal = (etiqueta, monto, peso = "normal") => {
+    fuente(doc, peso);
+    doc.text(etiqueta, ETIQUETA, y, { align: "right" });
+    dinero(monto);
+    y += 6;
+  };
 
   fuente(doc, "bold");
-  doc.setFontSize(13);
+  doc.setFontSize(11);
   doc.setTextColor(...COLOR_FUERTE);
-  doc.text(tique.casera.toUpperCase(), 5, y);
-
-  fuente(doc, "normal");
-  doc.setFontSize(8);
-  doc.setTextColor(...COLOR_SUAVE);
-  doc.text(`Tique #${tique.id.toString().padStart(3, "0")}  ·  ${tique.fecha}  ·  ${tique.hora}`, 5, y + 5);
-
-  y += 12;
-  lineaSuave(doc, y);
-  y += 6;
-
-  fuente(doc, "normal");
-  doc.setFontSize(9.5);
-  doc.setTextColor(...COLOR_FUERTE);
-
-  tique.items.forEach((item) => {
-    doc.text(item.prod.toUpperCase(), 5, y);
-    doc.text(formatearMoneda(item.subtotal), 75, y, { align: "right" });
-    y += 6;
-  });
-
-  y += 1;
-  lineaSuave(doc, y);
-  y += 7;
-
- const totalItems = tique.items.reduce((suma, item) => suma + (Number(item.subtotal) || 0), 0);
+  doc.text("COMERCIAL VIRGEN DE CHAPI", 40, y, { align: "center", charSpace: 0.4 });
 
   fuente(doc, "normal");
   doc.setFontSize(9);
+  doc.text(capitalizar(tique.casera), 40, y + 6, { align: "center" });
   doc.setTextColor(...COLOR_SUAVE);
-  doc.text("Subtotal", 5, y);
-  doc.text(formatearMoneda(totalItems), 75, y, { align: "right" });
-  y += 6.5;
+  doc.text(`Tique #${tique.id.toString().padStart(3, "0")} · ${tique.fecha}`, 40, y + 11, { align: "center" });
 
-  if (tique.pasaje > 0) {
-    doc.text("+ Pasaje", 5, y);
-    doc.text(formatearMoneda(tique.pasaje), 75, y, { align: "right" });
-    y += 6.5;
-  }
-
-  if (tique.deudaAnterior > 0) {
-    doc.text("+ Deuda anterior", 5, y);
-    doc.text(formatearMoneda(tique.deudaAnterior), 75, y, { align: "right" });
-    y += 6.5;
-  }
-
-  y += 1;
+  y += 15;
   lineaSuave(doc, y);
-  y += 8;
+  y += 6;
 
-  fuente(doc, "bold");
-  doc.setFontSize(11.5);
   doc.setTextColor(...COLOR_FUERTE);
-  doc.text("TOTAL A PAGAR", 5, y);
-  doc.text(formatearMoneda(tique.totalCuenta), 75, y, { align: "right" });
-  y += 10;
+  tique.items.forEach((item) => {
+    doc.text(capitalizar(item.prod), 5, y);
+    dinero(item.subtotal);
+    y += 5.5;
+  });
 
-  fuente(doc, "bold");
-  doc.setFontSize(9.5);
-  if (tique.saldoACuenta === 0) {
-    doc.setTextColor(...COLOR_OK);
-    doc.text("ESTADO: CANCELADO", 5, y);
-    doc.text(formatearMoneda(tique.montoPagado), 75, y, { align: "right" });
-  } else {
-    doc.setTextColor(...COLOR_MAL);
-    doc.text("ESTADO: FALTA PAGAR", 5, y);
-    doc.text(formatearMoneda(tique.saldoACuenta), 75, y, { align: "right" });
-  }
-  y += 10;
+  y -= 2;
+  lineaSuave(doc, y);
+  y += 6;
 
+  const totalItems = tique.items.reduce((suma, item) => suma + (Number(item.subtotal) || 0), 0);
+  doc.setTextColor(...COLOR_SUAVE);
+  filaTotal("Subtotal", totalItems);
+  if (tique.pasaje > 0) filaTotal("+ Pasaje", tique.pasaje);
+  if (tique.deudaAnterior > 0) filaTotal("+ Deuda anterior", tique.deudaAnterior);
+
+  y -= 2;
+  lineaSuave(doc, y);
+  y += 6;
+
+  doc.setTextColor(...COLOR_FUERTE);
+  filaTotal("Total a pagar", tique.totalCuenta, "bold");
+
+  const cancelado = tique.saldoACuenta === 0;
+  doc.setTextColor(...(cancelado ? COLOR_OK : COLOR_MAL));
+  filaTotal(cancelado ? "Estado: Cancelado" : "Estado: Falta pagar", cancelado ? tique.montoPagado : tique.saldoACuenta, "bold");
+
+  y += 4;
   fuente(doc, "normal");
-  doc.setFontSize(8);
   doc.setTextColor(...COLOR_SUAVE);
   doc.text("Gracias por su preferencia", 40, y, { align: "center" });
 
@@ -129,7 +115,7 @@ function nombreArchivoTique(tique) {
 }
 
 function calcularAltoTique(tique) {
-  return 98 + tique.items.length * 6;
+  return 86 + tique.items.length * 5.5;
 }
 
 export function descargarTiqueVentaPDF(tiqueId) {
