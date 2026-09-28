@@ -22,11 +22,11 @@ export function hoyISO() {
 }
 
 export function horaActual() {
-  return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return new Date().toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit", hour12: true });
 }
 
 export function fechaActual() {
-  return new Date().toLocaleDateString();
+  return new Date().toLocaleDateString("es-PE");
 }
 
 export function normalizarNombre(nombre) {

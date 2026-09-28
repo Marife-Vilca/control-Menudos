@@ -219,43 +219,42 @@ function construirTextoVentaTique(tique) {
   return texto;
 }
 
-function renderVentaTiqueCard(tique) {
-  const itemsHtml = tique.items
-    .map(
-      (it) => `
-      <div class="ticket-item">
-        <span>${it.prod.toUpperCase()}</span>
-        <span class="ticket-item-subtotal">${formatearMoneda(it.subtotal)}</span>
-      </div>`
-    )
-    .join("");
+function montoHTML(valor) {
+  return `<span class="tv-monto"><span>S/</span><span>${Number(valor).toFixed(2)}</span></span>`;
+}
 
-  const extrasHtml = `
-    ${tique.pasaje > 0 ? `<div class="ticket-item"><span>Pasaje</span><span class="ticket-item-subtotal">${formatearMoneda(tique.pasaje)}</span></div>` : ""}
-    ${tique.deudaAnterior > 0 ? `<div class="ticket-item"><span>Deuda anterior</span><span class="ticket-item-subtotal">${formatearMoneda(tique.deudaAnterior)}</span></div>` : ""}
-  `;
+function tvFila(etiqueta, valor, extraClase = "") {
+  return `<div class="tv-fila ${extraClase}"><span class="tv-etiqueta">${etiqueta}</span>${montoHTML(valor)}</div>`;
+}
+
+function renderVentaTiqueCard(tique) {
+  const totalItems = tique.items.reduce((suma, it) => suma + (Number(it.subtotal) || 0), 0);
+  const itemsHtml = tique.items.map((it) => tvFila(it.prod, it.subtotal, "tv-producto")).join("");
 
   const badge = tique.saldoACuenta > 0
     ? `<span class="status-badge status-bad">DEBE ${formatearMoneda(tique.saldoACuenta)}</span>`
     : `<span class="status-badge status-ok">PAGADO</span>`;
 
   return `
-    <div class="kfc-ticket ${tique.saldoACuenta === 0 ? "ticket-despachado" : ""}">
+    <div class="kfc-ticket ticket-venta ${tique.saldoACuenta === 0 ? "ticket-despachado" : ""}">
       <div class="ticket-top">
         <div class="ticket-number">
           <span>VENTA #${tique.id.toString().padStart(3, "0")}</span>
-          <span class="ticket-time">${tique.hora}</span>
+          <span class="ticket-time">${tique.fecha} · ${tique.hora}</span>
         </div>
         <div class="ticket-customer"><i class="fa-solid fa-user"></i> ${tique.casera}</div>
       </div>
-      <div class="ticket-body">${itemsHtml}${extrasHtml}</div>
-      <div class="ticket-total-linea">
-        <span>Total</span>
-        <strong>${formatearMoneda(tique.totalCuenta)}</strong>
-      </div>
-      <div class="ticket-total-linea">
-        <span>Pagado</span>
-        <strong>${formatearMoneda(tique.montoPagado)}</strong>
+      <div class="ticket-body">
+        ${itemsHtml}
+        <div class="tv-separador"></div>
+        <div class="tv-totales">
+          ${tvFila("Subtotal", totalItems)}
+          ${tique.pasaje > 0 ? tvFila("+ Pasaje", tique.pasaje) : ""}
+          ${tique.deudaAnterior > 0 ? tvFila("+ Deuda anterior", tique.deudaAnterior) : ""}
+          <div class="tv-separador"></div>
+          ${tvFila("Total", tique.totalCuenta, "tv-negrita")}
+          ${tvFila("Pagado", tique.montoPagado)}
+        </div>
       </div>
       <div class="ticket-footer">
         <div class="ticket-footer-top">${badge}</div>
@@ -574,7 +573,6 @@ export function configurarVentaDia(onChange) {
 
   agregarFilaVenta(contenedorVenta, inputCasera, onTotalesFormNuevo);
 
-  // ---- MODAL: EDITAR VENTA ----
   const refsEdicion = refsFormularioEdicion();
   const onTotalesEdicion = () => actualizarTotales(refsEdicion);
 

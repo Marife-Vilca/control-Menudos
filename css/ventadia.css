@@ -192,3 +192,34 @@
   max-height: 92dvh;
   overflow-y: auto;
 }
+
+/* TIQUE DEL TABLERO: mismo tamaño de letra, "S/" alineados en columna */
+.ticket-venta .tv-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.ticket-venta .tv-producto .tv-etiqueta { text-transform: capitalize; }
+
+.ticket-venta .tv-monto {
+  display: inline-flex;
+  justify-content: space-between;
+  width: 104px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ticket-venta .tv-totales .tv-fila { justify-content: flex-end; }
+.ticket-venta .tv-negrita { font-weight: 700; }
+
+.ticket-venta .tv-separador {
+  border-top: 1px dashed var(--border-color);
+  margin: 8px 0;
+}
+
+/* Espacio entre "Pagado" y el estado (DEBE / PAGADO) */
+.ticket-venta .ticket-footer { margin-top: 14px; }

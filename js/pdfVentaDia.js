@@ -68,7 +68,7 @@ function dibujarTiqueVenta(doc, tique) {
   doc.setFontSize(9);
   doc.text(capitalizar(tique.casera), 40, y + 6, { align: "center" });
   doc.setTextColor(...COLOR_SUAVE);
-  doc.text(`Tique #${tique.id.toString().padStart(3, "0")} · ${tique.fecha}`, 40, y + 11, { align: "center" });
+  doc.text(`Tique #${tique.id.toString().padStart(3, "0")} - ${tique.fecha} - ${tique.hora}`, 40, y + 11, { align: "center" });
 
   y += 15;
   lineaSuave(doc, y);
