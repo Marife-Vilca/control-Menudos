@@ -1,4 +1,4 @@
-/* PESTAÑAS VENTAS / COMPRAS */
+
 .subvista-tabs {
   display: flex;
   gap: 16px;
@@ -67,7 +67,6 @@
   height: 34px;
 }
 
-/* FILAS DE ITEM: COMPRAS A PROVEEDORES */
 .compra-item-row {
   display: flex;
   flex-wrap: wrap;
@@ -80,7 +79,6 @@
 .compra-item-row .campo-voz { flex: 1 1 160px; }
 .compra-item-row .btn-remove-row { flex: 0 0 38px; }
 
-/* SALDO DESTACADO EN LOS FORMULARIOS */
 .saldo-preview-linea {
   background: var(--bg-card-alt);
   border-radius: var(--radius-sm);
@@ -92,7 +90,6 @@
   color: var(--accent-red);
 }
 
-/* MODALES ANCHOS: DEUDORES Y PROVEEDORES */
 .modal-box-ancho { max-width: 640px; }
 
 .deudores-lista {
@@ -158,4 +155,40 @@
   width: 100%;
   margin-top: 6px;
   font-size: 0.78rem;
+}
+
+#modal-editar-venta .modal-box {
+  display: flex;
+  flex-direction: column;
+  max-height: 92vh;
+  max-height: 92dvh;
+  overflow: hidden;
+}
+
+#modal-editar-venta form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+#modal-editar-venta .modal-cuerpo-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 4px;
+}
+
+#modal-editar-venta .modal-footer {
+  flex-shrink: 0;
+  background: #fff;
+  margin-top: 8px;
+}
+
+#modal-deudores .modal-box,
+#modal-proveedores .modal-box {
+  max-height: 92vh;
+  max-height: 92dvh;
+  overflow-y: auto;
 }
