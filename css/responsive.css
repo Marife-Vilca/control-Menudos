@@ -83,4 +83,35 @@
   .deudor-tique-fila { flex-wrap: wrap; }
 
   .modal-box-ancho { max-width: 92%; }
+  .modal-box {
+    padding: 14px;
+    max-height: 94vh;
+  }
+
+  .modal-item-fila {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .modal-item-fila .campo-cantidad,
+  .modal-item-fila .campo-flex-1,
+  .modal-item-fila .campo-flex-2 { 
+    grid-column: span 2;
+    width: 100%; 
+  }
+
+  .btn-eliminar-item-modal {
+    grid-column: 3;
+    align-self: center;
+  }
+
+  .modal-footer {
+    width: 100%;
+  }
+
+  .modal-footer button {
+    flex: 1;
+  }
 }
