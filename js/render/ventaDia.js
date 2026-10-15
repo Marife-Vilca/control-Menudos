@@ -1,6 +1,5 @@
 
-import { state, getPrecioProducto, setPrecioEspecial } from '../state.js';
-import { formatearMoneda, campoVozHTML, generarId } from '../utils.js';
+import { formatearMoneda } from '../utils.js';
 import {
   getVentaDelDia,
   crearTiqueVenta,
@@ -10,8 +9,16 @@ import {
   cerrarVentaDelDia,
   sugerirDeudaAnterior,
   getDeudores,
-  buscarTiqueVentaPorId
+  buscarTiqueVentaPorId,
+  calcularTotalCuenta,
+  etiquetaDescuento
 } from '../ventaDia.js';
+import {
+  agregarFilaVenta,
+  conectarFilasVenta,
+  recolectarItemsVenta,
+  sumarSubtotales
+} from './filaVenta.js';
 import { descargarTiqueVentaPDF, compartirTiqueVentaPDF, descargarEstadoCuentaPDF } from '../pdfVentaDia.js';
 import { leerTexto } from '../tts.js';
 
@@ -32,165 +39,13 @@ function cerrarModal(idModal) {
   document.getElementById(idModal).classList.remove("abierto");
 }
 
-function construirOpcionesProducto() {
-  return state.productos
-    .map((p) => `<option value="${p.nombre}" data-tipo-precio="${p.tipoPrecio}">${p.nombre.toUpperCase()}</option>`)
-    .join("");
-}
-
-function filaVentaHTML() {
-  return `
-    <div class="venta-item-row">
-      <div class="venta-item-row-principal">
-        <select class="vd-prod" required>${construirOpcionesProducto()}</select>
-        <select class="vd-modo">
-          <option value="directo">Monto Directo</option>
-          <option value="kilo">Por Kilo</option>
-          <option value="unidad">Por Unidad</option>
-        </select>
-        ${campoVozHTML({
-          tipo: "number", clase: "vd-peso", placeholder: "Peso (kg)",
-          attrs: 'min="0.1" step="0.1"', modoVoz: "numero", ariaLabel: "Dictar peso por voz"
-        })}
-        ${campoVozHTML({
-          tipo: "number", clase: "vd-cantidad", placeholder: "Cant.",
-          attrs: 'min="1" step="1"', modoVoz: "numero", ariaLabel: "Dictar cantidad por voz"
-        })}
-        ${campoVozHTML({
-          tipo: "number", clase: "vd-monto-directo", placeholder: "Monto S/",
-          attrs: 'min="0" step="0.10"', modoVoz: "numero", ariaLabel: "Dictar monto por voz"
-        })}
-        <div class="precio-item-info">
-          <span class="precio-item-unitario">S/ 0.00</span>
-          <button type="button" class="btn-editar-precio-item" title="Cambiar precio para esta casera">
-            <i class="fa-solid fa-pen"></i>
-          </button>
-        </div>
-      </div>
-      <div class="venta-item-row-final">
-        <span class="subtotal-item-linea">S/ 0.00</span>
-        <button type="button" class="btn-remove-row" data-action="quitar-fila-venta">
-          <i class="fa-solid fa-trash-can"></i>
-        </button>
-      </div>
-    </div>
-  `;
-}
-
-function actualizarFilaVenta(fila, inputCasera, onTotalesCambiaron) {
-  const prod = fila.querySelector(".vd-prod").value;
-  const modo = fila.querySelector(".vd-modo").value;
-
-  const campoPeso = fila.querySelector(".vd-peso").closest(".campo-voz");
-  const campoCantidad = fila.querySelector(".vd-cantidad").closest(".campo-voz");
-  const campoMonto = fila.querySelector(".vd-monto-directo").closest(".campo-voz");
-  const infoPrecio = fila.querySelector(".precio-item-info");
-
-  campoPeso.style.display = modo === "kilo" ? "flex" : "none";
-  campoCantidad.style.display = modo === "unidad" ? "flex" : "none";
-  campoMonto.style.display = modo === "directo" ? "flex" : "none";
-  infoPrecio.style.display = modo === "directo" ? "none" : "flex";
-
-  const casera = inputCasera.value.trim();
-  let subtotal = 0;
-  let precioUnitario = 0;
-
-  if (modo === "directo") {
-    subtotal = parseFloat(fila.querySelector(".vd-monto-directo").value) || 0;
-  } else {
-    precioUnitario = getPrecioProducto(casera, prod);
-    const cantidad = modo === "kilo"
-      ? (parseFloat(fila.querySelector(".vd-peso").value) || 0)
-      : (parseFloat(fila.querySelector(".vd-cantidad").value) || 0);
-    subtotal = precioUnitario * cantidad;
-
-    const unidad = modo === "kilo" ? "/kg" : "/u";
-    fila.querySelector(".precio-item-unitario").textContent = `${formatearMoneda(precioUnitario)}${unidad}`;
-  }
-
-  fila.dataset.precioUnitario = precioUnitario;
-  fila.dataset.subtotal = subtotal;
-  fila.querySelector(".subtotal-item-linea").textContent = formatearMoneda(subtotal);
-
-  onTotalesCambiaron();
-}
-
-function agregarFilaVenta(contenedor, inputCasera, onTotalesCambiaron, datosIniciales) {
-  contenedor.insertAdjacentHTML("beforeend", filaVentaHTML());
-  const fila = contenedor.lastElementChild;
-
-  if (datosIniciales) {
-    fila.querySelector(".vd-prod").value = datosIniciales.prod;
-    fila.querySelector(".vd-modo").value = datosIniciales.modo;
-    if (datosIniciales.modo === "kilo") fila.querySelector(".vd-peso").value = datosIniciales.peso;
-    if (datosIniciales.modo === "unidad") fila.querySelector(".vd-cantidad").value = datosIniciales.cantidad;
-    if (datosIniciales.modo === "directo") fila.querySelector(".vd-monto-directo").value = datosIniciales.montoDirecto;
-  }
-
-  fila.querySelector(".vd-prod").addEventListener("change", () => actualizarFilaVenta(fila, inputCasera, onTotalesCambiaron));
-  actualizarFilaVenta(fila, inputCasera, onTotalesCambiaron);
-}
-
-function pedirPrecioEspecialVenta(fila, inputCasera, onTotalesCambiaron) {
-  const casera = inputCasera.value.trim();
-  if (!casera) {
-    alert("Escriba primero el nombre de la casera.");
-    return;
-  }
-
-  const prod = fila.querySelector(".vd-prod").value;
-  const precioActual = fila.dataset.precioUnitario || 0;
-  const nuevoPrecio = prompt(`Nuevo precio para "${casera}" en ${prod.toUpperCase()}:`, precioActual);
-  if (nuevoPrecio === null) return;
-
-  const valor = parseFloat(nuevoPrecio);
-  if (isNaN(valor) || valor <= 0) {
-    alert("Ingrese un precio válido mayor a 0.");
-    return;
-  }
-
-  setPrecioEspecial(casera, prod, valor);
-  actualizarFilaVenta(fila, inputCasera, onTotalesCambiaron);
-}
-
-function recolectarItemsVenta(contenedor) {
-  const items = [];
-
-  contenedor.querySelectorAll(".venta-item-row").forEach((fila) => {
-    const prod = fila.querySelector(".vd-prod").value;
-    const modo = fila.querySelector(".vd-modo").value;
-    const subtotal = parseFloat(fila.dataset.subtotal) || 0;
-    const precioUnitario = parseFloat(fila.dataset.precioUnitario) || 0;
-
-    if (subtotal <= 0) return;
-
-    const item = { id: generarId(), prod, modo, subtotal };
-
-    if (modo === "kilo") {
-      item.peso = parseFloat(fila.querySelector(".vd-peso").value) || 0;
-      item.precioUnitario = precioUnitario;
-    } else if (modo === "unidad") {
-      item.cantidad = parseFloat(fila.querySelector(".vd-cantidad").value) || 0;
-      item.precioUnitario = precioUnitario;
-    } else {
-      item.montoDirecto = parseFloat(fila.querySelector(".vd-monto-directo").value) || 0;
-    }
-
-    items.push(item);
+function actualizarTotales({ contenedor, inputPasaje, inputDeuda, inputDescuento, inputPagado, spanTotal, spanSaldo }) {
+  const totalCuenta = calcularTotalCuenta({
+    totalItems: sumarSubtotales(contenedor),
+    pasaje: parseFloat(inputPasaje.value),
+    deudaAnterior: parseFloat(inputDeuda.value),
+    descuento: parseFloat(inputDescuento.value)
   });
-
-  return items;
-}
-
-function actualizarTotales({ contenedor, inputPasaje, inputDeuda, inputPagado, spanTotal, spanSaldo }) {
-  let totalItems = 0;
-  contenedor.querySelectorAll(".venta-item-row").forEach((fila) => {
-    totalItems += parseFloat(fila.dataset.subtotal) || 0;
-  });
-
-  const pasaje = parseFloat(inputPasaje.value) || 0;
-  const deudaAnterior = parseFloat(inputDeuda.value) || 0;
-  const totalCuenta = totalItems + pasaje + deudaAnterior;
 
   spanTotal.textContent = formatearMoneda(totalCuenta);
 
@@ -199,6 +54,21 @@ function actualizarTotales({ contenedor, inputPasaje, inputDeuda, inputPagado, s
 
   spanSaldo.textContent = formatearMoneda(saldo);
   spanSaldo.classList.toggle("saldo-pendiente", saldo > 0);
+}
+
+/** Lee los ítems del contenedor; si hay un error de captura lo avisa y devuelve null. */
+function leerItemsOAvisar(contenedor) {
+  try {
+    const items = recolectarItemsVenta(contenedor);
+    if (items.length === 0) {
+      alert("Ingrese al menos un producto con monto mayor a 0.");
+      return null;
+    }
+    return items;
+  } catch (error) {
+    alert(error.message);
+    return null;
+  }
 }
 
 function resumenCantidadItem(item) {
@@ -212,6 +82,7 @@ function construirTextoVentaTique(tique) {
   let texto = `Venta de ${tique.casera}. Lleva: ${detalle}.`;
   if (tique.pasaje > 0) texto += ` Pasaje: ${formatearMoneda(tique.pasaje)}.`;
   if (tique.deudaAnterior > 0) texto += ` Deuda anterior: ${formatearMoneda(tique.deudaAnterior)}.`;
+  if (tique.descuento > 0) texto += ` Descuento de ${etiquetaDescuento(tique)}: ${formatearMoneda(tique.descuento)}.`;
   texto += ` Total: ${formatearMoneda(tique.totalCuenta)}.`;
   texto += tique.saldoACuenta > 0
     ? ` Queda a cuenta: ${formatearMoneda(tique.saldoACuenta)}.`
@@ -251,6 +122,7 @@ function renderVentaTiqueCard(tique) {
           ${tvFila("Subtotal", totalItems)}
           ${tique.pasaje > 0 ? tvFila("+ Pasaje", tique.pasaje) : ""}
           ${tique.deudaAnterior > 0 ? tvFila("+ Deuda anterior", tique.deudaAnterior) : ""}
+          ${tique.descuento > 0 ? tvFila(`- ${etiquetaDescuento(tique)}`, tique.descuento) : ""}
           <div class="tv-separador"></div>
           ${tvFila("Total", tique.totalCuenta, "tv-negrita")}
           ${tvFila("Pagado", tique.montoPagado)}
@@ -344,6 +216,8 @@ function refsFormularioEdicion() {
     inputCasera: document.getElementById("edit-venta-casera-nombre"),
     inputPasaje: document.getElementById("edit-venta-pasaje"),
     inputDeuda: document.getElementById("edit-venta-deuda-anterior"),
+    inputDescuento: document.getElementById("edit-venta-descuento"),
+    inputDescuentoConcepto: document.getElementById("edit-venta-descuento-concepto"),
     inputPagado: document.getElementById("edit-venta-monto-pagado"),
     spanTotal: document.getElementById("edit-venta-total-preview"),
     spanSaldo: document.getElementById("edit-venta-saldo-preview")
@@ -361,6 +235,8 @@ function abrirEdicionVenta(tiqueId) {
   refs.inputCasera.value = tique.casera;
   refs.inputPasaje.value = tique.pasaje || 0;
   refs.inputDeuda.value = tique.deudaAnterior || 0;
+  refs.inputDescuento.value = tique.descuento || 0;
+  refs.inputDescuentoConcepto.value = tique.descuentoConcepto || "";
   refs.inputPagado.value = tique.montoPagado || 0;
 
   refs.contenedor.innerHTML = "";
@@ -380,17 +256,16 @@ function guardarEdicionVenta(onChange) {
     return;
   }
 
-  const items = recolectarItemsVenta(refs.contenedor);
-  if (items.length === 0) {
-    alert("Ingrese al menos un producto con monto mayor a 0.");
-    return;
-  }
+  const items = leerItemsOAvisar(refs.contenedor);
+  if (!items) return;
 
   actualizarTiqueVenta(tiqueEnEdicionId, {
     casera,
     items,
     pasaje: parseFloat(refs.inputPasaje.value) || 0,
     deudaAnterior: parseFloat(refs.inputDeuda.value) || 0,
+    descuento: parseFloat(refs.inputDescuento.value) || 0,
+    descuentoConcepto: refs.inputDescuentoConcepto.value,
     montoPagado: parseFloat(refs.inputPagado.value) || 0
   });
 
@@ -466,19 +341,21 @@ export function configurarVentaDia(onChange) {
     contenedor: contenedorVenta,
     inputPasaje: document.getElementById("venta-pasaje"),
     inputDeuda: document.getElementById("venta-deuda-anterior"),
+    inputDescuento: document.getElementById("venta-descuento"),
+    inputDescuentoConcepto: document.getElementById("venta-descuento-concepto"),
     inputPagado: document.getElementById("venta-monto-pagado"),
     spanTotal: document.getElementById("venta-total-preview"),
     spanSaldo: document.getElementById("venta-saldo-preview")
   };
   const onTotalesFormNuevo = () => actualizarTotales(refsFormNuevo);
 
+  const alCambiarCasera = conectarFilasVenta(contenedorVenta, inputCasera, onTotalesFormNuevo);
+
   document.getElementById("btn-add-venta-row").addEventListener("click", () => {
     agregarFilaVenta(contenedorVenta, inputCasera, onTotalesFormNuevo);
   });
 
-  inputCasera.addEventListener("input", () => {
-    contenedorVenta.querySelectorAll(".venta-item-row").forEach((fila) => actualizarFilaVenta(fila, inputCasera, onTotalesFormNuevo));
-  });
+  inputCasera.addEventListener("input", alCambiarCasera);
 
   inputCasera.addEventListener("change", () => {
     const textoAyuda = document.getElementById("venta-deuda-sugerida");
@@ -503,31 +380,7 @@ export function configurarVentaDia(onChange) {
     onTotalesFormNuevo();
   });
 
-  contenedorVenta.addEventListener("click", (evento) => {
-    const botonQuitar = evento.target.closest('[data-action="quitar-fila-venta"]');
-    if (botonQuitar) {
-      if (contenedorVenta.querySelectorAll(".venta-item-row").length > 1) {
-        botonQuitar.closest(".venta-item-row").remove();
-        onTotalesFormNuevo();
-      }
-      return;
-    }
-
-    const botonPrecio = evento.target.closest(".btn-editar-precio-item");
-    if (botonPrecio) pedirPrecioEspecialVenta(botonPrecio.closest(".venta-item-row"), inputCasera, onTotalesFormNuevo);
-  });
-
-  contenedorVenta.addEventListener("input", (evento) => {
-    const fila = evento.target.closest(".venta-item-row");
-    if (fila) actualizarFilaVenta(fila, inputCasera, onTotalesFormNuevo);
-  });
-
-  contenedorVenta.addEventListener("change", (evento) => {
-    const fila = evento.target.closest(".venta-item-row");
-    if (fila) actualizarFilaVenta(fila, inputCasera, onTotalesFormNuevo);
-  });
-
-  [refsFormNuevo.inputPasaje, refsFormNuevo.inputDeuda, refsFormNuevo.inputPagado].forEach((input) => {
+  [refsFormNuevo.inputPasaje, refsFormNuevo.inputDeuda, refsFormNuevo.inputDescuento, refsFormNuevo.inputPagado].forEach((input) => {
     input.addEventListener("input", onTotalesFormNuevo);
   });
 
@@ -540,11 +393,8 @@ export function configurarVentaDia(onChange) {
       return;
     }
 
-    const items = recolectarItemsVenta(contenedorVenta);
-    if (items.length === 0) {
-      alert("Ingrese al menos un producto con monto mayor a 0.");
-      return;
-    }
+    const items = leerItemsOAvisar(contenedorVenta);
+    if (!items) return;
 
     let origenIds = [];
     try {
@@ -558,6 +408,8 @@ export function configurarVentaDia(onChange) {
       items,
       pasaje: parseFloat(refsFormNuevo.inputPasaje.value) || 0,
       deudaAnterior: parseFloat(refsFormNuevo.inputDeuda.value) || 0,
+      descuento: parseFloat(refsFormNuevo.inputDescuento.value) || 0,
+      descuentoConcepto: refsFormNuevo.inputDescuentoConcepto.value,
       deudaAnteriorOrigenIds: origenIds,
       montoPagado: parseFloat(refsFormNuevo.inputPagado.value) || 0
     });
@@ -576,35 +428,13 @@ export function configurarVentaDia(onChange) {
   const refsEdicion = refsFormularioEdicion();
   const onTotalesEdicion = () => actualizarTotales(refsEdicion);
 
+  conectarFilasVenta(refsEdicion.contenedor, refsEdicion.inputCasera, onTotalesEdicion);
+
   document.getElementById("btn-add-edit-venta-row").addEventListener("click", () => {
     agregarFilaVenta(refsEdicion.contenedor, refsEdicion.inputCasera, onTotalesEdicion);
   });
 
-  refsEdicion.contenedor.addEventListener("click", (evento) => {
-    const botonQuitar = evento.target.closest('[data-action="quitar-fila-venta"]');
-    if (botonQuitar) {
-      if (refsEdicion.contenedor.querySelectorAll(".venta-item-row").length > 1) {
-        botonQuitar.closest(".venta-item-row").remove();
-        onTotalesEdicion();
-      }
-      return;
-    }
-
-    const botonPrecio = evento.target.closest(".btn-editar-precio-item");
-    if (botonPrecio) pedirPrecioEspecialVenta(botonPrecio.closest(".venta-item-row"), refsEdicion.inputCasera, onTotalesEdicion);
-  });
-
-  refsEdicion.contenedor.addEventListener("input", (evento) => {
-    const fila = evento.target.closest(".venta-item-row");
-    if (fila) actualizarFilaVenta(fila, refsEdicion.inputCasera, onTotalesEdicion);
-  });
-
-  refsEdicion.contenedor.addEventListener("change", (evento) => {
-    const fila = evento.target.closest(".venta-item-row");
-    if (fila) actualizarFilaVenta(fila, refsEdicion.inputCasera, onTotalesEdicion);
-  });
-
-  [refsEdicion.inputPasaje, refsEdicion.inputDeuda, refsEdicion.inputPagado].forEach((input) => {
+  [refsEdicion.inputPasaje, refsEdicion.inputDeuda, refsEdicion.inputDescuento, refsEdicion.inputPagado].forEach((input) => {
     input.addEventListener("input", onTotalesEdicion);
   });
 

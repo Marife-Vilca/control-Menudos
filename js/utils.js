@@ -29,6 +29,10 @@ export function fechaActual() {
   return new Date().toLocaleDateString("es-PE");
 }
 
+export function capitalizar(texto) {
+  return String(texto || "").toLowerCase().replace(/(^|\s)\S/g, (c) => c.toUpperCase());
+}
+
 export function normalizarNombre(nombre) {
   return (nombre || "").trim().toLowerCase().replace(/\s+/g, " ");
 }

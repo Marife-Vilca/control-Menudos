@@ -22,6 +22,15 @@ export function buscarTiqueVentaPorId(id) {
   return todosLosTiquesVenta().find((t) => t.id === id) || null;
 }
 
+export function calcularTotalCuenta({ totalItems = 0, pasaje = 0, deudaAnterior = 0, descuento = 0 }) {
+  const total = (Number(totalItems) || 0) + (Number(pasaje) || 0) + (Number(deudaAnterior) || 0) - (Number(descuento) || 0);
+  return Math.max(0, total);
+}
+
+export function etiquetaDescuento(tique) {
+  return (tique.descuentoConcepto || "").trim() || "descuento";
+}
+
 export function sugerirDeudaAnterior(nombreCasera) {
   const clave = normalizarNombre(nombreCasera);
   if (!clave) return { monto: 0, origenIds: [] };
@@ -36,11 +45,11 @@ export function sugerirDeudaAnterior(nombreCasera) {
   };
 }
 
-export function crearTiqueVenta({ casera, items, pasaje, deudaAnterior, deudaAnteriorOrigenIds, montoPagado }) {
+export function crearTiqueVenta({ casera, items, pasaje, deudaAnterior, descuento, descuentoConcepto, deudaAnteriorOrigenIds, montoPagado }) {
   const ventaDelDia = asegurarVentaDelDia();
 
   const totalItems = items.reduce((suma, item) => suma + (Number(item.subtotal) || 0), 0);
-  const totalCuenta = totalItems + (Number(pasaje) || 0) + (Number(deudaAnterior) || 0);
+  const totalCuenta = calcularTotalCuenta({ totalItems, pasaje, deudaAnterior, descuento });
   const pagado = Math.min(Number(montoPagado) || 0, totalCuenta);
   const saldoACuenta = Math.max(0, totalCuenta - pagado);
 
@@ -53,6 +62,8 @@ export function crearTiqueVenta({ casera, items, pasaje, deudaAnterior, deudaAnt
     items,
     pasaje: Number(pasaje) || 0,
     deudaAnterior: Number(deudaAnterior) || 0,
+    descuento: Number(descuento) || 0,
+    descuentoConcepto: (descuentoConcepto || "").trim(),
     totalCuenta,
     montoPagado: pagado,
     saldoACuenta,
@@ -84,18 +95,20 @@ export function registrarPagoVenta(tiqueId, monto) {
   tique.resuelto = tique.saldoACuenta === 0;
 }
 
-export function actualizarTiqueVenta(tiqueId, { casera, items, pasaje, deudaAnterior, montoPagado }) {
+export function actualizarTiqueVenta(tiqueId, { casera, items, pasaje, deudaAnterior, descuento, descuentoConcepto, montoPagado }) {
   const tique = buscarTiqueVentaPorId(tiqueId);
   if (!tique) return;
 
   const totalItems = items.reduce((suma, item) => suma + (Number(item.subtotal) || 0), 0);
-  const totalCuenta = totalItems + (Number(pasaje) || 0) + (Number(deudaAnterior) || 0);
+  const totalCuenta = calcularTotalCuenta({ totalItems, pasaje, deudaAnterior, descuento });
   const pagado = Math.min(Number(montoPagado) || 0, totalCuenta);
 
   tique.casera = casera.trim();
   tique.items = items;
   tique.pasaje = Number(pasaje) || 0;
   tique.deudaAnterior = Number(deudaAnterior) || 0;
+  tique.descuento = Number(descuento) || 0;
+  tique.descuentoConcepto = (descuentoConcepto || "").trim();
   tique.totalCuenta = totalCuenta;
   tique.montoPagado = pagado;
   tique.saldoACuenta = Math.max(0, totalCuenta - pagado);
