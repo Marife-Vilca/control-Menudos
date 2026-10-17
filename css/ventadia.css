@@ -28,7 +28,7 @@
 .subvista-panel { display: none; }
 .subvista-panel-activo { display: block; }
 
-/* FILAS DE ITEM: VENTA DEL DÍA — primero el precio, luego qué es */
+/* FILAS DE ITEM: VENTA DEL DÍA — precio directo, por kilo o por unidad */
 .venta-item-row {
   container-type: inline-size;
   margin-bottom: var(--space-2);
@@ -36,6 +36,16 @@
   border-radius: var(--radius-lg);
   border: 1px solid transparent;
   transition: background-color 0.2s, border-color 0.2s;
+}
+
+.vd-fila-modo { margin-bottom: var(--space-2); }
+
+.vd-fila-modo .vd-modo {
+  width: auto;
+  min-width: 150px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: var(--radius-lg);
 }
 
 /* Angosto (móvil o columna estrecha): el precio va arriba, luego "qué es" + quitar */
@@ -59,18 +69,18 @@
 
 .vd-fila-principal .vd-monto-directo { border-color: var(--accent-blue); }
 
-.vd-nota-kilo,
-.vd-fila-kilo { display: none; }
+.vd-nota-medida,
+.vd-fila-medida { display: none; }
 
-/* Producto "por kilo": tarjeta con kilos × precio = subtotal */
-.venta-item-row[data-modo="kilo"] {
+/* Por kilo / por unidad: tarjeta con cantidad × precio = subtotal */
+.venta-item-row:is([data-modo="kilo"], [data-modo="unidad"]) {
   background: var(--bg-card-alt);
   border-color: var(--border-color);
 }
 
-.venta-item-row[data-modo="kilo"] .vd-celda-precio { display: none; }
+.venta-item-row:is([data-modo="kilo"], [data-modo="unidad"]) .vd-celda-precio { display: none; }
 
-.venta-item-row[data-modo="kilo"] .vd-nota-kilo {
+.venta-item-row:is([data-modo="kilo"], [data-modo="unidad"]) .vd-nota-medida {
   display: block;
   margin-bottom: var(--space-2);
   font-size: 0.82rem;
@@ -78,7 +88,7 @@
   color: var(--text-muted);
 }
 
-.venta-item-row[data-modo="kilo"] .vd-fila-kilo {
+.venta-item-row:is([data-modo="kilo"], [data-modo="unidad"]) .vd-fila-medida {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: var(--space-2);
@@ -86,13 +96,13 @@
   margin-top: var(--space-2);
 }
 
-.vd-fila-kilo .campo-voz:first-of-type,
-.vd-fila-kilo .subtotal-item-linea { grid-column: 1 / -1; }
+.vd-fila-medida .campo-voz:first-of-type,
+.vd-fila-medida .subtotal-item-linea { grid-column: 1 / -1; }
 
-.vd-fila-kilo .vd-por { color: var(--text-muted); font-weight: 700; }
-.vd-fila-kilo .subtotal-item-linea { white-space: nowrap; text-align: right; }
+.vd-fila-medida .vd-por { color: var(--text-muted); font-weight: 700; }
+.vd-fila-medida .subtotal-item-linea { white-space: nowrap; text-align: right; }
 
-.vd-fila-kilo .vd-precio-especial {
+.vd-fila-medida .vd-precio-especial {
   border-color: var(--accent-green);
   background-color: #f0fdf4;
 }
@@ -108,16 +118,16 @@
 @container (min-width: 440px) {
   .vd-fila-principal { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 38px; }
   .vd-celda-precio { grid-column: auto; }
-  .venta-item-row[data-modo="kilo"] .vd-fila-principal { grid-template-columns: minmax(0, 1fr) 38px; }
+  .venta-item-row:is([data-modo="kilo"], [data-modo="unidad"]) .vd-fila-principal { grid-template-columns: minmax(0, 1fr) 38px; }
 }
 
-/* Mucho ancho: kilos × precio = subtotal en una sola línea */
+/* Mucho ancho: cantidad × precio = subtotal en una sola línea */
 @container (min-width: 600px) {
-  .venta-item-row[data-modo="kilo"] .vd-fila-kilo {
+  .venta-item-row:is([data-modo="kilo"], [data-modo="unidad"]) .vd-fila-medida {
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto;
   }
-  .vd-fila-kilo .campo-voz:first-of-type,
-  .vd-fila-kilo .subtotal-item-linea { grid-column: auto; }
+  .vd-fila-medida .campo-voz:first-of-type,
+  .vd-fila-medida .subtotal-item-linea { grid-column: auto; }
 }
 
 .compra-item-row {
@@ -146,15 +156,19 @@
 .modal-box-ancho { max-width: 640px; }
 
 .deudores-lista {
-  max-height: 55vh;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin-bottom: 12px;
+  padding-right: 4px;
 }
 
 .deudor-card {
+  flex-shrink: 0;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -243,8 +257,11 @@
 #modal-proveedores .modal-box {
   max-height: 92vh;
   max-height: 92dvh;
-  overflow-y: auto;
+  overflow: hidden;
 }
+
+#modal-deudores .modal-footer,
+#modal-proveedores .modal-footer { flex-shrink: 0; }
 
 /* TIQUE DEL TABLERO: mismo tamaño de letra, "S/" alineados en columna */
 .ticket-venta .tv-fila {
