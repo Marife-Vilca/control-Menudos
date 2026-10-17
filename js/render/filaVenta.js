@@ -1,11 +1,25 @@
-import { state, getPrecioProducto, tienePrecioEspecial, setPrecioEspecial } from '../state.js';
-import { formatearMoneda, campoVozHTML, capitalizar, generarId } from '../utils.js';
+import {
+  state,
+  getPrecioProducto,
+  tienePrecioEspecial,
+  setPrecioEspecial,
+} from "../state.js";
+import {
+  formatearMoneda,
+  campoVozHTML,
+  capitalizar,
+  generarId,
+} from "../utils.js";
 
 const SELECTOR_FILA = ".venta-item-row";
 
 const TEXTOS_MEDIDA = {
   kilo: { cantidad: "Kilos", precio: "S/ por kilo", rotulo: "Por kilo" },
-  unidad: { cantidad: "Cantidad", precio: "S/ por unidad", rotulo: "Por unidad" }
+  unidad: {
+    cantidad: "Cantidad",
+    precio: "S/ por unidad",
+    rotulo: "Por unidad",
+  },
 };
 
 function numero(elemento) {
@@ -18,10 +32,6 @@ function redondear(valor) {
 
 function esModoMedida(modo) {
   return modo === "kilo" || modo === "unidad";
-}
-
-function productoPorNombre(nombre) {
-  return state.productos.find((p) => p.nombre === nombre);
 }
 
 function opcionesProducto() {
@@ -46,9 +56,13 @@ function filaHTML() {
       <div class="vd-fila-principal">
         <div class="vd-celda-precio">
           ${campoVozHTML({
-            tipo: "number", clase: "vd-monto-directo", placeholder: "S/ 0.00",
-            attrs: 'min="0" step="any" inputmode="decimal" aria-label="Precio en soles"',
-            modoVoz: "numero", ariaLabel: "Dictar precio por voz"
+            tipo: "number",
+            clase: "vd-monto-directo",
+            placeholder: "S/ 0.00",
+            attrs:
+              'min="0" step="any" inputmode="decimal" aria-label="Precio en soles"',
+            modoVoz: "numero",
+            ariaLabel: "Dictar precio por voz",
           })}
         </div>
         <select class="vd-prod" aria-label="Qué producto es">${opcionesProducto()}</select>
@@ -59,15 +73,22 @@ function filaHTML() {
 
       <div class="vd-fila-medida">
         ${campoVozHTML({
-          tipo: "number", clase: "vd-cantidad", placeholder: "Kilos",
+          tipo: "number",
+          clase: "vd-cantidad",
+          placeholder: "Kilos",
           attrs: 'min="0" step="any" inputmode="decimal" aria-label="Cantidad"',
-          modoVoz: "numero", ariaLabel: "Dictar cantidad por voz"
+          modoVoz: "numero",
+          ariaLabel: "Dictar cantidad por voz",
         })}
         <span class="vd-por" aria-hidden="true">×</span>
         ${campoVozHTML({
-          tipo: "number", clase: "vd-precio-unitario", placeholder: "S/ por kilo",
-          attrs: 'min="0" step="any" inputmode="decimal" aria-label="Precio unitario"',
-          modoVoz: "numero", ariaLabel: "Dictar precio por voz"
+          tipo: "number",
+          clase: "vd-precio-unitario",
+          placeholder: "S/ por kilo",
+          attrs:
+            'min="0" step="any" inputmode="decimal" aria-label="Precio unitario"',
+          modoVoz: "numero",
+          ariaLabel: "Dictar precio por voz",
         })}
         <strong class="subtotal-item-linea">S/ 0.00</strong>
       </div>
@@ -77,8 +98,14 @@ function filaHTML() {
 
 function asegurarOpcion(select, nombreProducto) {
   if (!nombreProducto) return;
-  const existe = Array.from(select.options).some((o) => o.value === nombreProducto);
-  if (!existe) select.insertAdjacentHTML("beforeend", `<option value="${nombreProducto}">${capitalizar(nombreProducto)}</option>`);
+  const existe = Array.from(select.options).some(
+    (o) => o.value === nombreProducto,
+  );
+  if (!existe)
+    select.insertAdjacentHTML(
+      "beforeend",
+      `<option value="${nombreProducto}">${capitalizar(nombreProducto)}</option>`,
+    );
 }
 
 function textoNota(modo, casera, producto) {
@@ -94,9 +121,16 @@ function marcarPrecioEspecial(fila, casera) {
   if (!esModoMedida(modo)) return;
 
   const producto = fila.querySelector(".vd-prod").value;
-  const especial = !!casera && !!producto && tienePrecioEspecial(casera, producto);
-  fila.querySelector(".vd-precio-unitario").classList.toggle("vd-precio-especial", especial);
-  fila.querySelector(".vd-nota-medida").textContent = textoNota(modo, casera, producto);
+  const especial =
+    !!casera && !!producto && tienePrecioEspecial(casera, producto);
+  fila
+    .querySelector(".vd-precio-unitario")
+    .classList.toggle("vd-precio-especial", especial);
+  fila.querySelector(".vd-nota-medida").textContent = textoNota(
+    modo,
+    casera,
+    producto,
+  );
 }
 
 function aplicarTextosDeModo(fila, modo) {
@@ -129,8 +163,12 @@ export function actualizarFilaVenta(fila, onTotalesCambiaron) {
 
   let subtotal;
   if (esModoMedida(modo)) {
-    subtotal = redondear(numero(fila.querySelector(".vd-cantidad")) * numero(fila.querySelector(".vd-precio-unitario")));
-    fila.querySelector(".subtotal-item-linea").textContent = formatearMoneda(subtotal);
+    subtotal = redondear(
+      numero(fila.querySelector(".vd-cantidad")) *
+        numero(fila.querySelector(".vd-precio-unitario")),
+    );
+    fila.querySelector(".subtotal-item-linea").textContent =
+      formatearMoneda(subtotal);
   } else {
     subtotal = numero(fila.querySelector(".vd-monto-directo"));
   }
@@ -145,20 +183,15 @@ function guardarPrecioEspecialSiCambio(fila, inputCasera) {
   const producto = fila.querySelector(".vd-prod").value;
   const precio = numero(fila.querySelector(".vd-precio-unitario"));
 
-  if (casera && producto && precio > 0 && precio !== getPrecioProducto(casera, producto)) {
+  if (
+    casera &&
+    producto &&
+    precio > 0 &&
+    precio !== getPrecioProducto(casera, producto)
+  ) {
     setPrecioEspecial(casera, producto, precio);
   }
   marcarPrecioEspecial(fila, casera);
-}
-
-/** Al elegir un producto "por kilo" en una fila de precio directo, pasa solo a modo kilo. */
-function sugerirModoSegunProducto(fila) {
-  const selectModo = fila.querySelector(".vd-modo");
-  const producto = productoPorNombre(fila.querySelector(".vd-prod").value);
-
-  if (selectModo.value === "directo" && producto && producto.tipoPrecio === "kilo") {
-    selectModo.value = "kilo";
-  }
 }
 
 function cargarDatosIniciales(fila, item) {
@@ -166,7 +199,9 @@ function cargarDatosIniciales(fila, item) {
   asegurarOpcion(select, item.prod);
   select.value = item.prod;
 
-  const modo = ["directo", "kilo", "unidad"].includes(item.modo) ? item.modo : "directo";
+  const modo = ["directo", "kilo", "unidad"].includes(item.modo)
+    ? item.modo
+    : "directo";
   fila.querySelector(".vd-modo").value = modo;
   aplicarTextosDeModo(fila, modo);
 
@@ -177,11 +212,17 @@ function cargarDatosIniciales(fila, item) {
     fila.querySelector(".vd-cantidad").value = item.cantidad;
     fila.querySelector(".vd-precio-unitario").value = item.precioUnitario;
   } else {
-    fila.querySelector(".vd-monto-directo").value = item.montoDirecto ?? item.subtotal;
+    fila.querySelector(".vd-monto-directo").value =
+      item.montoDirecto ?? item.subtotal;
   }
 }
 
-export function agregarFilaVenta(contenedor, inputCasera, onTotalesCambiaron, datosIniciales) {
+export function agregarFilaVenta(
+  contenedor,
+  inputCasera,
+  onTotalesCambiaron,
+  datosIniciales,
+) {
   contenedor.insertAdjacentHTML("beforeend", filaHTML());
   const fila = contenedor.lastElementChild;
 
@@ -198,9 +239,15 @@ export function agregarFilaVenta(contenedor, inputCasera, onTotalesCambiaron, da
  * Conecta los eventos de un contenedor de filas (formulario nuevo o modal de edición).
  * Devuelve la función a llamar cuando cambia el nombre de la casera.
  */
-export function conectarFilasVenta(contenedor, inputCasera, onTotalesCambiaron) {
+export function conectarFilasVenta(
+  contenedor,
+  inputCasera,
+  onTotalesCambiaron,
+) {
   contenedor.addEventListener("click", (evento) => {
-    const botonQuitar = evento.target.closest('[data-action="quitar-fila-venta"]');
+    const botonQuitar = evento.target.closest(
+      '[data-action="quitar-fila-venta"]',
+    );
     if (!botonQuitar) return;
 
     if (contenedor.querySelectorAll(SELECTOR_FILA).length > 1) {
@@ -220,10 +267,7 @@ export function conectarFilasVenta(contenedor, inputCasera, onTotalesCambiaron) 
 
     const objetivo = evento.target.classList;
 
-    if (objetivo.contains("vd-prod")) {
-      sugerirModoSegunProducto(fila);
-      sincronizarPrecio(fila, inputCasera);
-    } else if (objetivo.contains("vd-modo")) {
+    if (objetivo.contains("vd-prod") || objetivo.contains("vd-modo")) {
       sincronizarPrecio(fila, inputCasera);
     } else if (objetivo.contains("vd-precio-unitario")) {
       guardarPrecioEspecialSiCambio(fila, inputCasera);
@@ -257,7 +301,8 @@ export function recolectarItemsVenta(contenedor) {
     if (subtotal <= 0) return;
 
     const prod = fila.querySelector(".vd-prod").value;
-    if (!prod) throw new Error(`Elige qué es el monto de ${formatearMoneda(subtotal)}.`);
+    if (!prod)
+      throw new Error(`Elige qué es el monto de ${formatearMoneda(subtotal)}.`);
 
     const modo = fila.querySelector(".vd-modo").value;
     const item = { id: generarId(), prod, modo, subtotal };
