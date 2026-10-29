@@ -1,3 +1,4 @@
+
 import { formatearMoneda, capitalizar } from './utils.js';
 import { buscarTiqueVentaPorId, getDeudores, etiquetaDescuento } from './ventaDia.js';
 import { buscarCompraPorId } from './comprasProveedores.js';
@@ -9,7 +10,7 @@ const COLOR_LINEA = [225, 225, 228];
 
 let fuenteRegistrada = false;
 
-function crearDocumento(alto) {
+export function crearDocumento(alto) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: [80, alto] });
 
@@ -103,7 +104,7 @@ function construirPlanTique(tique) {
   return plan;
 }
 
-function altoDelPlan(plan) {
+export function altoDelPlan(plan) {
   return TIQUE.margenSup + plan.reduce((suma, paso) => suma + ALTURA_PASO[paso.tipo], 0) + TIQUE.margenInf;
 }
 
@@ -158,7 +159,7 @@ function trazarPaso(doc, paso, y, tique) {
   }
 }
 
-function dibujarTiqueVenta(doc, tique, plan) {
+export function dibujarTiqueVenta(doc, tique, plan) {
   let y = TIQUE.margenSup;
   plan.forEach((paso) => {
     trazarPaso(doc, paso, y, tique);
@@ -195,22 +196,11 @@ function generarArchivoTiqueVenta(tique) {
   return new File([blob], nombreArchivo, { type: "application/pdf" });
 }
 
-export async function compartirTiqueVentaPDF(tiqueId) {
-  const tique = buscarTiqueVentaPorId(tiqueId);
-  if (!tique) {
-    alert("Tique no encontrado.");
-    return;
-  }
-
-  const archivo = generarArchivoTiqueVenta(tique);
-
+/** Comparte un PDF con el menú del celular; si no se puede, lo descarga. */
+export async function compartirArchivoPDF(archivo, { titulo, texto }) {
   if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
     try {
-      await navigator.share({
-        files: [archivo],
-        title: `Venta - ${tique.casera}`,
-        text: `Cuenta de ${tique.casera}: ${formatearMoneda(tique.totalCuenta)}`
-      });
+      await navigator.share({ files: [archivo], title: titulo, text: texto });
       return;
     } catch (e) {
       if (e && e.name === "AbortError") return; // el usuario canceló, no es un error
@@ -223,6 +213,19 @@ export async function compartirTiqueVentaPDF(tiqueId) {
   enlace.click();
   URL.revokeObjectURL(enlace.href);
   alert("Tu navegador no permite compartir directo. Se descargó el PDF: adjúntalo tú misma en WhatsApp.");
+}
+
+export async function compartirTiqueVentaPDF(tiqueId) {
+  const tique = buscarTiqueVentaPorId(tiqueId);
+  if (!tique) {
+    alert("Tique no encontrado.");
+    return;
+  }
+
+  await compartirArchivoPDF(generarArchivoTiqueVenta(tique), {
+    titulo: `Venta - ${tique.casera}`,
+    texto: `Cuenta de ${tique.casera}: ${formatearMoneda(tique.totalCuenta)}`
+  });
 }
 
 export function descargarEstadoCuentaPDF(nombreCasera) {

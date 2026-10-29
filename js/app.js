@@ -18,6 +18,7 @@ import { configurarCierreCiclo } from './render/ciclo.js';
 import { renderReportes } from './render/reportes.js';
 import { renderVentaDelDia, renderDeudoresModal, configurarVentaDia } from './render/ventaDia.js';
 import { renderCompras, renderProveedoresModal, configurarCompras } from './render/comprasProveedores.js';
+import { renderSemana, renderDeudoresSemanaModal, configurarSemana } from './render/semana.js';
 
 function actualizarInterfaz() {
   recalcularTodoElStock();
@@ -36,6 +37,8 @@ function actualizarInterfaz() {
   renderDeudoresModal();
   renderCompras();
   renderProveedoresModal();
+  renderSemana();
+  renderDeudoresSemanaModal();
 }
 
 function configurarSelectorDia() {
@@ -68,6 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
   configurarCierreCiclo(actualizarInterfaz);
   configurarVentaDia(actualizarInterfaz);
   configurarCompras(actualizarInterfaz);
+  configurarSemana(actualizarInterfaz);
 
   actualizarInterfaz();
 });

@@ -1,0 +1,66 @@
+
+.ticket-semana-abierta {
+  border-style: dashed;
+}
+
+.ticket-venta .tv-entrega { gap: 8px; }
+
+.ticket-venta .tv-entrega .tv-etiqueta { flex: 1; }
+
+.btn-quitar-entrega {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+}
+
+.btn-quitar-entrega:hover {
+  color: var(--accent-red);
+  border-color: var(--accent-red);
+  background: #fef2f2;
+}
+
+#modal-sacar-cuenta .modal-box,
+#modal-deudores-semana .modal-box {
+  max-height: 92vh;
+  max-height: 92dvh;
+  overflow: hidden;
+}
+
+#modal-sacar-cuenta .modal-cuerpo-scroll { min-height: 0; }
+
+#modal-sacar-cuenta .sc-resumen {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: var(--bg-card-alt);
+  border-radius: var(--radius-md);
+}
+
+#modal-sacar-cuenta .sc-resumen .tv-fila {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  font-size: 0.9rem;
+}
+
+#modal-sacar-cuenta .sc-resumen .tv-etiqueta { text-transform: capitalize; }
+
+#modal-sacar-cuenta .sc-resumen .tv-monto {
+  display: inline-flex;
+  justify-content: space-between;
+  width: 104px;
+  font-variant-numeric: tabular-nums;
+}
+
+#modal-deudores-semana .modal-footer { flex-shrink: 0; }
